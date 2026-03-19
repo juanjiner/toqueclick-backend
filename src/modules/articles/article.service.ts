@@ -12,15 +12,12 @@ export class ArticleService {
         return this.repository.findAll();
     }
 
-    async createArticle(data: any, file: Express.Multer.File): Promise<Article> {
+    async createArticle(data: Article, file: Express.Multer.File): Promise<Article> {
         const imageUrl = await this.storage.uploadFile(file, this.folder);
-        return this.repository.create({
-            ...data,
-            imageUrl
-        });
+        return this.repository.create({ ...data, imageUrl });
     }
 
-    async updateArticle(id: string, data: any, file?: Express.Multer.File): Promise<Article | null> {
+    async updateArticle(id: string, data: Article, file?: Express.Multer.File): Promise<Article | null> {
         const existing = await this.repository.findById(id);
         if (!existing) return null;
 
@@ -31,10 +28,7 @@ export class ArticleService {
             imageUrl = await this.storage.uploadFile(file, this.folder);
         }
 
-        return this.repository.update(id, {
-            ...data,
-            imageUrl
-        });
+        return this.repository.update(id, { ...data, imageUrl });
     }
 
     async deleteArticle(id: string) {

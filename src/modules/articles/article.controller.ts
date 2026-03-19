@@ -23,7 +23,7 @@ export class ArticleController {
         const id = String(req.params.id);
         const data = await this.service.updateArticle(id, req.body, req.file);
 
-        if (!data) throw new AppError("No encontrado", 404);
+        if (!data) throw new AppError("Artículo no encontrado", 404);
 
         res.json(successResponse(data));
     };

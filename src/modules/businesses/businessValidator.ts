@@ -6,6 +6,5 @@ export const businessSchema = z.object({
     categoryId: z.string(),
     description: z.string(),
     address: z.string(),
-    phone: z.string(),
-    logoUrl: z.string()
+    phone: z.string()
 });

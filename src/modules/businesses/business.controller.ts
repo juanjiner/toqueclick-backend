@@ -13,13 +13,14 @@ export class BusinessesController {
     };
 
     create = async (req: Request, res: Response) => {
-        const business = await this.service.createBusiness(req.body);
+        if (!req.file) throw new AppError("Imagen requerida", 400);
+        const business = await this.service.createBusiness(req.body, req.file);
         res.status(201).json(successResponse(business));
     };
 
     update = async (req: Request, res: Response) => {
         const id = String(req.params.id);
-        const business = await this.service.updateBusiness(id, req.body);
+        const business = await this.service.updateBusiness(id, req.body, req.file);
 
         if (!business) {
             throw new AppError("Comercio no encontrado", 404);

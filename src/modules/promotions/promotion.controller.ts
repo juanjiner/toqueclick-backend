@@ -13,13 +13,14 @@ export class PromotionController {
     };
 
     create = async (req: Request, res: Response) => {
-        const promotion = await this.service.createPromotion(req.body);
+        if (!req.file) throw new AppError("Imagen requerida", 400);
+        const promotion = await this.service.createPromotion(req.body, req.file);
         res.status(201).json(successResponse(promotion));
     };
 
     update = async (req: Request, res: Response) => {
         const id = String(req.params.id);
-        const promotion = await this.service.updatePromotion(id, req.body);
+        const promotion = await this.service.updatePromotion(id, req.body, req.file);
 
         if (!promotion) {
             throw new AppError("Promoción no encontrada", 404);

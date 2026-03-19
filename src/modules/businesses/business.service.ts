@@ -1,23 +1,41 @@
+import { StorageService } from "../../services/storage.service.js";
 import { Business } from "./business.model.js";
 import { BusinessRepository } from "./business.repository.js";
 
 export class BusinessService {
 
     private repository = new BusinessRepository();
+    private storage = new StorageService();
+    private folder = "business";
 
     getBusinesses(): Promise<Business[]> {
         return this.repository.findAll();
     }
 
-    createBusiness(business: Business): Promise<Business> {
-        return this.repository.create(business);
+    async createBusiness(business: Business, file: Express.Multer.File): Promise<Business> {
+        const logoUrl = await this.storage.uploadFile(file, this.folder);
+        return this.repository.create({ ...business, logoUrl });
     }
 
-    updateBusiness(id: string, business: Business): Promise<Business | null> {
-        return this.repository.update(id, business);
+    async updateBusiness(id: string, business: Business, file?: Express.Multer.File): Promise<Business | null> {
+        const existing = await this.repository.findById(id);
+        if (!existing) return null;
+
+        let logoUrl = existing.logoUrl;
+
+        if (file) {
+            await this.storage.deleteFile(existing.logoUrl);
+            logoUrl = await this.storage.uploadFile(file, this.folder);
+        }
+
+        return this.repository.update(id, { ...business, logoUrl });
     }
 
-    deleteBusiness(id: string): Promise<void> {
-        return this.repository.delete(id);
+    async deleteBusiness(id: string): Promise<void> {
+        const existing = await this.repository.findById(id);
+        if (existing?.logoUrl) {
+            await this.storage.deleteFile(existing.logoUrl);
+        }
+        await this.repository.delete(id);
     }
 }

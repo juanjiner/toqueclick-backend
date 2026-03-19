@@ -11,6 +11,15 @@ export class PromotionRepository {
         return result.rows;
     }
 
+    async findById(id: string): Promise<Promotion | null> {
+        const result = await pool.query(
+            "SELECT * FROM toque.promotions WHERE id=$1",
+            [id]
+        );
+
+        return result.rows[0] || null;
+    }
+
     async create(promotion: Promotion): Promise<Promotion> {
         const result = await pool.query(
             `

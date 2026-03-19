@@ -14,7 +14,6 @@ export class StorageService {
     async uploadFile(file: Express.Multer.File, folder: string): Promise<string> {
 
         const filename = file.originalname;
-        console.log(file.originalname);
         const key = this.getKey(folder, filename);
 
         await s3.send(new PutObjectCommand({

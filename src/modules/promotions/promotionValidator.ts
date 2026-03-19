@@ -9,6 +9,5 @@ export const promotionSchema = z.object({
     originalPrice: z.number(),
     promoTypeId: z.string(),
     purchaseTypeId: z.string(),
-    expirationDate: z.string(),
-    imageUrl: z.string()
+    expirationDate: z.string()
 });

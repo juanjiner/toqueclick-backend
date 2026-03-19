@@ -11,6 +11,14 @@ export class BusinessRepository {
         return result.rows;
     }
 
+    async findById(id: string): Promise<Business | null> {
+        const result = await pool.query(
+            "SELECT * FROM toque.businesses WHERE id=$1",
+            [id]
+        );
+        return result.rows[0] || null;
+    }
+
     async create(business: Business): Promise<Business> {
         const result = await pool.query(
             `
@@ -37,7 +45,7 @@ export class BusinessRepository {
                 description=$4,
                 address=$5,
                 phone=$6,
-                logo_url=$7
+                logo_url=$7,
                 updated_at = CURRENT_TIMESTAMP
             WHERE id=$8
             RETURNING *
