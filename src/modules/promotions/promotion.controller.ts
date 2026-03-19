@@ -1,0 +1,46 @@
+import { Request, Response } from "express";
+import { PromotionService } from "./promotion.service.js";
+import { successResponse } from "../../utils/apiResponse.js";
+import { AppError } from "../../utils/AppError.js";
+
+export class PromotionController {
+
+    private service = new PromotionService();
+
+    getAll = async (_req: Request, res: Response) => {
+        const promotions = await this.service.getPromotions();
+        res.json(successResponse(promotions));
+    };
+
+    create = async (req: Request, res: Response) => {
+        const promotion = await this.service.createPromotion(req.body);
+        res.status(201).json(successResponse(promotion));
+    };
+
+    update = async (req: Request, res: Response) => {
+        const id = String(req.params.id);
+        const promotion = await this.service.updatePromotion(id, req.body);
+
+        if (!promotion) {
+            throw new AppError("Promoción no encontrada", 404);
+        }
+
+        res.json(successResponse(promotion));
+    };
+
+    delete = async (req: Request, res: Response) => {
+        const id = String(req.params.id);
+        await this.service.deletePromotion(id);
+        res.status(204).send();
+    };
+
+    getPromoTypes = async (_req: Request, res: Response) => {
+        const promoTypes = await this.service.getPromoTypes();
+        res.json(successResponse(promoTypes));
+    };
+
+    getPurchaseTypes = async (_req: Request, res: Response) => {
+        const purchaseTypes = await this.service.getPurchaseTypes();
+        res.json(successResponse(purchaseTypes));
+    };
+}
