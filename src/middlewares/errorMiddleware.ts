@@ -12,6 +12,20 @@ export const errorMiddleware = (
 
     const status = err.status || 500;
 
+    if (err.code === "LIMIT_FILE_SIZE") {
+        return res.status(400).json({
+            success: false,
+            message: "Máximo 5MB permitido"
+        });
+    }
+
+    if (err.message?.includes("Solo imágenes")) {
+        return res.status(400).json({
+            success: false,
+            message: err.message
+        });
+    }
+
     res.status(status).json({
         success: false,
         message: err.message || "Internal server error"

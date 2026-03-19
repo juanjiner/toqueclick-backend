@@ -11,6 +11,15 @@ export class ArticleRepository {
         return result.rows;
     }
 
+    async findById(id: string): Promise<Article | null> {
+        const result = await pool.query(
+            "SELECT * FROM toque.blog_articles WHERE id=$1",
+            [id]
+        );
+
+        return result.rows[0] || null;
+    }
+
     async create(article: Article): Promise<Article> {
         const result = await pool.query(
             `

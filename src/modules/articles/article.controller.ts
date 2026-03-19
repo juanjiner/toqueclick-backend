@@ -13,19 +13,19 @@ export class ArticleController {
     };
 
     create = async (req: Request, res: Response) => {
-        const article = await this.service.createArticle(req.body);
-        res.status(201).json(successResponse(article));
+        if (!req.file) throw new AppError("Imagen requerida", 400);
+
+        const data = await this.service.createArticle(req.body, req.file);
+        res.status(201).json(successResponse(data));
     };
 
     update = async (req: Request, res: Response) => {
         const id = String(req.params.id);
-        const article = await this.service.updateArticle(id, req.body);
+        const data = await this.service.updateArticle(id, req.body, req.file);
 
-        if (!article) {
-            throw new AppError("Artículo no encontrado", 404);
-        }
+        if (!data) throw new AppError("No encontrado", 404);
 
-        res.json(successResponse(article));
+        res.json(successResponse(data));
     };
 
     delete = async (req: Request, res: Response) => {
