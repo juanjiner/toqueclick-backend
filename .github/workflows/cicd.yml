@@ -68,7 +68,6 @@ jobs:
               DB_NAME=${{ secrets.PRD_DB_NAME }},\
               DB_SSL=${{ secrets.PRD_DB_SSL }},\
               AWS_BUCKET=${{ secrets.PRD_AWS_BUCKET }},\
-              AWS_REGION=${{ secrets.PRD_AWS_REGION }}\
             }"
 
       - name: Wait for config update
