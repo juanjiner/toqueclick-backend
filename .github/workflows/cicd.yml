@@ -6,7 +6,7 @@ on:
       - main
 
 permissions:
-  id-token: write   # necesario para OIDC
+  id-token: write
   contents: read
 
 jobs:
@@ -39,14 +39,14 @@ jobs:
           npm ci --omit=dev
           zip -r ../lambda-deployment.zip .
 
-      # ── OIDC en lugar de access keys ──
+      # ── OIDC ──
       - name: Configure AWS credentials via OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.PRD_AWS_ROLE }}
           aws-region: ${{ secrets.PRD_AWS_REGION }}
 
-      # ── Backup env vars actuales de $LATEST ──
+      # ── Backup env vars actuales ──
       - name: Backup current env vars
         run: |
           aws lambda get-function-configuration \
@@ -54,20 +54,26 @@ jobs:
             --query 'Environment.Variables' \
             --output json > current_env.json
 
-      # ── Inyectar vars de producción ──
+      # ── Inyectar vars de producción (FIXED) ──
       - name: Set production env vars
         run: |
+          cat <<EOF > env.json
+          {
+            "Variables": {
+              "DB_HOST": "${{ secrets.PRD_DB_HOST }}",
+              "DB_PORT": "${{ secrets.PRD_DB_PORT }}",
+              "DB_USER": "${{ secrets.PRD_DB_USER }}",
+              "DB_PASSWORD": "${{ secrets.PRD_DB_PASSWORD }}",
+              "DB_NAME": "${{ secrets.PRD_DB_NAME }}",
+              "DB_SSL": "${{ secrets.PRD_DB_SSL }}",
+              "AWS_BUCKET": "${{ secrets.PRD_AWS_BUCKET }}"
+            }
+          }
+          EOF
+
           aws lambda update-function-configuration \
             --function-name ${{ secrets.PRD_LBF_NAME }} \
-            --environment "Variables={\
-              DB_HOST=${{ secrets.PRD_DB_HOST }},\
-              DB_PORT=${{ secrets.PRD_DB_PORT }},\
-              DB_USER=${{ secrets.PRD_DB_USER }},\
-              DB_PASSWORD=${{ secrets.PRD_DB_PASSWORD }},\
-              DB_NAME=${{ secrets.PRD_DB_NAME }},\
-              DB_SSL=${{ secrets.PRD_DB_SSL }},\
-              AWS_BUCKET=${{ secrets.PRD_AWS_BUCKET }},\
-            }"
+            --environment file://env.json
 
       - name: Wait for config update
         run: |
@@ -106,10 +112,15 @@ jobs:
             --name ${{ secrets.PRD_LBF_ALIAS }} \
             --function-version ${{ steps.publish.outputs.version }}
 
-      # ── Restaurar env vars originales en $LATEST ──
+      # ── Restaurar env vars originales (FIXED) ──
       - name: Restore env vars on $LATEST
         run: |
-          ORIGINAL_VARS=$(cat current_env.json)
+          cat <<EOF > restore-env.json
+          {
+            "Variables": $(cat current_env.json)
+          }
+          EOF
+
           aws lambda update-function-configuration \
             --function-name ${{ secrets.PRD_LBF_NAME }} \
-            --environment "Variables=$ORIGINAL_VARS"
+            --environment file://restore-env.json
