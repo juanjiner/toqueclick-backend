@@ -12,7 +12,7 @@ export class AppLinksRepository {
             "SELECT * FROM toque.app_download_links"
         );
 
-        return toCamelCase(result.rows[0]);
+        return toCamelCase(result.rows[0] || null);
     }
 
     async create(appLinks: AppLinks): Promise<AppLinks> {

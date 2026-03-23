@@ -12,7 +12,7 @@ export class LegalRepository {
             "SELECT * FROM toque.legal_information"
         );
 
-        return toCamelCase(result.rows[0]);
+        return toCamelCase(result.rows[0] || null);
     }
 
     async create(legal: Legal): Promise<Legal> {

@@ -8,20 +8,23 @@ import articleRoutes from "./modules/articles/article.routes.js";
 import businessRoutes from "./modules/businesses/business.routes.js";
 import faqRoutes from "./modules/faqs/faq.routes.js";
 import categoryRoutes from "./modules/categories/category.routes.js";
+import { corsConfig } from "./config/cors.js";
 
 const app = express();
+
+app.use(corsConfig);
 
 app.use(express.json());
 
 app.use(requestLogger);
 
-app.use("/api/settings", settingsRoutes);
-app.use("/api/cities", departamentRoutes);
-app.use("/api/categories", categoryRoutes);
-app.use("/api/businesses", businessRoutes);
-app.use("/api/promotions", promotionRoutes);
-app.use("/api/articles", articleRoutes);
-app.use("/api/faqs", faqRoutes);
+app.use("/settings", settingsRoutes);
+app.use("/cities", departamentRoutes);
+app.use("/categories", categoryRoutes);
+app.use("/businesses", businessRoutes);
+app.use("/promotions", promotionRoutes);
+app.use("/articles", articleRoutes);
+app.use("/faqs", faqRoutes);
 
 app.use(errorMiddleware);
 

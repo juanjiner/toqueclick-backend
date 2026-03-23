@@ -12,7 +12,7 @@ export class SocialRepository {
             "SELECT * FROM toque.social_networks"
         );
 
-        return toCamelCase(result.rows[0]);
+        return toCamelCase(result.rows[0] || null);
     }
 
     async create(social: Social): Promise<Social> {

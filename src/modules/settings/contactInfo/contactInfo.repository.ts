@@ -12,7 +12,7 @@ export class ContactInfoRepository {
             "SELECT * FROM toque.contact_info"
         );
 
-        return toCamelCase(result.rows[0]);
+        return toCamelCase(result.rows[0] || null);
     }
 
     async create(contactInfo: ContactInfo): Promise<ContactInfo> {

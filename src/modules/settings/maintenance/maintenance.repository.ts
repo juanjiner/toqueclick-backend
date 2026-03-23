@@ -12,7 +12,7 @@ export class MaintenanceRepository {
             "SELECT * FROM toque.site_maintenance"
         );
 
-        return toCamelCase(result.rows[0]);
+        return toCamelCase(result.rows[0] || null);
     }
 
     async create(maintenance: Maintenance): Promise<Maintenance> {
