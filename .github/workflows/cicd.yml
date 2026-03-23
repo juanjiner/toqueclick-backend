@@ -1,0 +1,115 @@
+name: Deploy to AWS Lambda
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write   # necesario para OIDC
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build TypeScript
+        run: npm run build
+
+      - name: Package for Lambda
+        run: |
+          mkdir -p lambda-package
+          cp -r dist/ lambda-package/
+          cp package.json lambda-package/
+          cp package-lock.json lambda-package/
+          cd lambda-package
+          npm ci --omit=dev
+          zip -r ../lambda-deployment.zip .
+
+      # ── OIDC en lugar de access keys ──
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.PRD_AWS_ROLE }}
+          aws-region: ${{ secrets.PRD_AWS_REGION }}
+
+      # ── Backup env vars actuales de $LATEST ──
+      - name: Backup current env vars
+        run: |
+          aws lambda get-function-configuration \
+            --function-name ${{ secrets.PRD_LBF_NAME }} \
+            --query 'Environment.Variables' \
+            --output json > current_env.json
+
+      # ── Inyectar vars de producción ──
+      - name: Set production env vars
+        run: |
+          aws lambda update-function-configuration \
+            --function-name ${{ secrets.PRD_LBF_NAME }} \
+            --environment "Variables={\
+              DB_HOST=${{ secrets.PRD_DB_HOST }},\
+              DB_PORT=${{ secrets.PRD_DB_PORT }},\
+              DB_USER=${{ secrets.PRD_DB_USER }},\
+              DB_PASSWORD=${{ secrets.PRD_DB_PASSWORD }},\
+              DB_NAME=${{ secrets.PRD_DB_NAME }},\
+              DB_SSL=${{ secrets.PRD_DB_SSL }},\
+              AWS_BUCKET=${{ secrets.PRD_AWS_BUCKET }}\
+            }"
+
+      - name: Wait for config update
+        run: |
+          aws lambda wait function-updated \
+            --function-name ${{ secrets.PRD_LBF_NAME }}
+
+      # ── Subir código ──
+      - name: Upload new code
+        run: |
+          aws lambda update-function-code \
+            --function-name ${{ secrets.PRD_LBF_NAME }} \
+            --zip-file fileb://lambda-deployment.zip
+
+      - name: Wait for code update
+        run: |
+          aws lambda wait function-updated \
+            --function-name ${{ secrets.PRD_LBF_NAME }}
+
+      # ── Publicar versión ──
+      - name: Publish new version
+        id: publish
+        run: |
+          VERSION=$(aws lambda publish-version \
+            --function-name ${{ secrets.PRD_LBF_NAME }} \
+            --description "Deploy ${{ github.sha }}" \
+            --query 'Version' \
+            --output text)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Nueva versión: $VERSION"
+
+      # ── Actualizar alias ──
+      - name: Update alias
+        run: |
+          aws lambda update-alias \
+            --function-name ${{ secrets.PRD_LBF_NAME }} \
+            --name ${{ secrets.PRD_LBF_ALIAS }} \
+            --function-version ${{ steps.publish.outputs.version }}
+
+      # ── Restaurar env vars originales en $LATEST ──
+      - name: Restore env vars on $LATEST
+        run: |
+          ORIGINAL_VARS=$(cat current_env.json)
+          aws lambda update-function-configuration \
+            --function-name ${{ secrets.PRD_LBF_NAME }} \
+            --environment "Variables=$ORIGINAL_VARS"
