@@ -54,22 +54,28 @@ jobs:
             --query 'Environment.Variables' \
             --output json > current_env.json
 
-      # ── Inyectar vars de producción (FIXED) ──
+      # ── Inyectar vars de producción (ROBUSTO) ──
       - name: Set production env vars
         run: |
-          cat <<EOF > env.json
-          {
-            "Variables": {
-              "DB_HOST": "${{ secrets.PRD_DB_HOST }}",
-              "DB_PORT": "${{ secrets.PRD_DB_PORT }}",
-              "DB_USER": "${{ secrets.PRD_DB_USER }}",
-              "DB_PASSWORD": "${{ secrets.PRD_DB_PASSWORD }}",
-              "DB_NAME": "${{ secrets.PRD_DB_NAME }}",
-              "DB_SSL": "${{ secrets.PRD_DB_SSL }}",
-              "AWS_BUCKET": "${{ secrets.PRD_AWS_BUCKET }}"
-            }
-          }
-          EOF
+          jq -n \
+            --arg DB_HOST "${{ secrets.PRD_DB_HOST }}" \
+            --arg DB_PORT "${{ secrets.PRD_DB_PORT }}" \
+            --arg DB_USER "${{ secrets.PRD_DB_USER }}" \
+            --arg DB_PASSWORD "${{ secrets.PRD_DB_PASSWORD }}" \
+            --arg DB_NAME "${{ secrets.PRD_DB_NAME }}" \
+            --arg DB_SSL "${{ secrets.PRD_DB_SSL }}" \
+            --arg AWS_BUCKET "${{ secrets.PRD_AWS_BUCKET }}" \
+            '{
+              Variables: {
+                DB_HOST: $DB_HOST,
+                DB_PORT: $DB_PORT,
+                DB_USER: $DB_USER,
+                DB_PASSWORD: $DB_PASSWORD,
+                DB_NAME: $DB_NAME,
+                DB_SSL: $DB_SSL,
+                AWS_BUCKET: $AWS_BUCKET
+              }
+            }' > env.json
 
           aws lambda update-function-configuration \
             --function-name ${{ secrets.PRD_LBF_NAME }} \
@@ -112,14 +118,12 @@ jobs:
             --name ${{ secrets.PRD_LBF_ALIAS }} \
             --function-version ${{ steps.publish.outputs.version }}
 
-      # ── Restaurar env vars originales (FIXED) ──
+      # ── Restaurar env vars originales (robusto también) ──
       - name: Restore env vars on $LATEST
         run: |
-          cat <<EOF > restore-env.json
-          {
-            "Variables": $(cat current_env.json)
-          }
-          EOF
+          jq -n \
+            --argjson vars "$(cat current_env.json)" \
+            '{ Variables: $vars }' > restore-env.json
 
           aws lambda update-function-configuration \
             --function-name ${{ secrets.PRD_LBF_NAME }} \
