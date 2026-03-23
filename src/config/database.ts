@@ -6,7 +6,7 @@ let pool: Pool;
 export const getPool = () => {
     if (!pool) {
         try {
-            pool = new Pool({
+            var object = {
                 host: process.env.DB_HOST,
                 port: Number(process.env.DB_PORT),
                 user: process.env.DB_USER,
@@ -19,7 +19,9 @@ export const getPool = () => {
                     process.env.DB_SSL === "true"
                         ? { rejectUnauthorized: false }
                         : false,
-            });
+            }
+            logger.info("ver objecto: ", object);
+            pool = new Pool(object);
         } catch (error) {
             logger.error(error);
             throw error;
