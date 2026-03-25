@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { CityService } from "./city.service.js";
 import { successResponse } from "../../utils/apiResponse.js";
+import { logger } from "../../utils/logger.js";
 
 export class DepartamentController {
 
@@ -8,6 +9,7 @@ export class DepartamentController {
 
     getDepartaments = async (_req: Request, res: Response) => {
         const departaments = await this.service.getDepartaments();
+        logger.info("respuesta en controlador: ", departaments);
         res.json(successResponse(departaments));
     };
 

@@ -1,4 +1,5 @@
 import { getPool } from "../../config/database.js";
+import { logger } from "../../utils/logger.js";
 import { Departament, Province, District } from "./city.model.js";
 
 const pool = getPool();
@@ -8,6 +9,7 @@ export class CityRepository {
     async findDepartaments(): Promise<Departament[]> {
         const result = await pool.query(
             "SELECT id, departament FROM maestro.departament ORDER BY departament");
+        logger.info("respuesta de consulta: ", result.rows);
         return result.rows;
     }
 
