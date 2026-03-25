@@ -1,4 +1,5 @@
 import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
+import { NodeHttpHandler } from "@smithy/node-http-handler";
 import { logger } from "../utils/logger.js";
 
 interface RDSSecret {
@@ -9,6 +10,9 @@ interface RDSSecret {
 const isLambda = (): boolean => !!process.env.AWS_LAMBDA_FUNCTION_NAME;
 
 export const loadSecrets = async (): Promise<void> => {
+    console.info("isLambda:", isLambda());
+    console.info("SECRET_MANAGER:", process.env.SECRET_MANAGER);
+    console.info("AWS_REGION:", process.env.AWS_REGION);
     if (!isLambda()) {
         logger.info("Ejecutándose localmente, omitiendo Secret Manager");
         return;
@@ -22,6 +26,10 @@ export const loadSecrets = async (): Promise<void> => {
     try {
         const client = new SecretsManagerClient({
             region: process.env.AWS_REGION,
+            requestHandler: new NodeHttpHandler({
+                connectionTimeout: 3000,
+                requestTimeout: 5000,
+            }),
         });
 
         const response = await client.send(
