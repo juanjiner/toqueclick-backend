@@ -14,7 +14,7 @@ export const validate =
 
                 return res.status(400).json({
                     success: false,
-                    message: error.errors
+                    message: error.message
                 });
 
             }

@@ -29,12 +29,9 @@ export class StorageService {
     async deleteFile(fileUrl?: string): Promise<void> {
         if (!fileUrl) return;
 
-        const url = new URL(fileUrl);
-        const key = url.pathname.substring(1);
-
         await s3.send(new DeleteObjectCommand({
             Bucket: storageConfig.bucket,
-            Key: key
+            Key: fileUrl
         }));
     }
 }

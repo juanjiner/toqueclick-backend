@@ -4,5 +4,8 @@ export interface Article {
     imageUrl: string;
     categoryId: string;
     author: string;
+    date: Date;
     content: string;
+    tags: string;
+    published: boolean;
 }

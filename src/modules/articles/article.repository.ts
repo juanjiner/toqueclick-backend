@@ -7,8 +7,8 @@ const pool = getPool();
 export class ArticleRepository {
 
     async findAll(): Promise<Article[]> {
-        const result = await pool.query("SELECT * FROM toque.blog_articles ORDER BY id");
-        return result.rows;
+        const result = await pool.query("SELECT * FROM toque.blog_articles ORDER BY date desc");
+        return toCamelCase(result.rows);
     }
 
     async findById(id: string): Promise<Article | null> {
@@ -17,19 +17,19 @@ export class ArticleRepository {
             [id]
         );
 
-        return result.rows[0] || null;
+        return toCamelCase(result.rows[0] || null);
     }
 
     async create(article: Article): Promise<Article> {
         const result = await pool.query(
             `
             INSERT INTO toque.blog_articles 
-            (title, image_url, category_id, author, content) 
-            VALUES ($1,$2,$3,$4,$5)
+            (title, image_url, category_id, author, date, content, tags, published) 
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
             RETURNING *
             `,
-            [article.title, article.imageUrl, article.categoryId, article.author,
-            article.content]
+            [article.title, article.imageUrl, article.categoryId, article.author, article.date,
+            article.content, article.tags, article.published]
         );
 
         return toCamelCase(result.rows[0]);
@@ -44,13 +44,16 @@ export class ArticleRepository {
                 image_url=$2,
                 category_id=$3,
                 author=$4,
-                content=$5,
+                date=$5,
+                content=$6,
+                tags=$7,
+                published=$8,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE id=$6
+            WHERE id=$9
             RETURNING *
             `,
-            [article.title, article.imageUrl, article.categoryId, article.author,
-            article.content, id]
+            [article.title, article.imageUrl, article.categoryId, article.author, article.date,
+            article.content, article.tags, article.published, id]
         );
 
         return toCamelCase(result.rows[0] || null);
