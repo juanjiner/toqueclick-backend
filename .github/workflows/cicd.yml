@@ -65,6 +65,7 @@ jobs:
             --arg DB_NAME "${{ secrets.PRD_DB_NAME }}" \
             --arg DB_SSL "${{ secrets.PRD_DB_SSL }}" \
             --arg AWS_BUCKET "${{ secrets.PRD_AWS_BUCKET }}" \
+            --arg SECRET_MANAGER "${{ secrets.SECRET_MANAGER }}" \
             '{
               Variables: {
                 DB_HOST: $DB_HOST,
@@ -73,7 +74,8 @@ jobs:
                 DB_PASSWORD: $DB_PASSWORD,
                 DB_NAME: $DB_NAME,
                 DB_SSL: $DB_SSL,
-                AWS_BUCKET: $AWS_BUCKET
+                AWS_BUCKET: $AWS_BUCKET,
+                SECRET_MANAGER: $SECRET_MANAGER
               }
             }' > env.json
 
