@@ -44,7 +44,7 @@ export const loadSecrets = async (): Promise<void> => {
         console.log("ver secret: ", secret);
         process.env.DB_USER = secret.username;
         process.env.DB_PASSWORD = secret.password;
-
+        console.log("ver password secret: ", secret.password);
         logger.info("Secrets cargando desde Secret Manager");
     } catch (error) {
         logger.error("Falló al cargar secrets", error);
