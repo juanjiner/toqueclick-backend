@@ -4,7 +4,9 @@ import { logger } from "../utils/logger.js";
 let pool: Pool;
 
 export const getPool = () => {
+    console.log("init...");
     if (!pool) {
+        console.log("ingresa a !pool");
         const object = {
             host: process.env.DB_HOST,
             port: Number(process.env.DB_PORT),
