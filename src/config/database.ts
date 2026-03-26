@@ -6,6 +6,7 @@ let pool: Pool;
 
 export const getPool = () => {
     if (!pool) {
+        console.log("init pool...");
         const { dbUser, dbPassword } = getConfig();
         const object = {
             host: process.env.DB_HOST,

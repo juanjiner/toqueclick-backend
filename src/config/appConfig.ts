@@ -19,7 +19,7 @@ export const getConfig = (): AppConfig => {
 
     if (!dbUser || !dbPassword) {
         throw new Error(
-            "Config no inicializada. En local, define DB_USER y DB_PASSWORD en tu .env"
+            "Config no inicializada..."
         );
     }
 
