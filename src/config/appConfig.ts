@@ -10,8 +10,18 @@ export const setConfig = (values: AppConfig) => {
 };
 
 export const getConfig = (): AppConfig => {
-    if (!config) {
-        throw new Error("Config no inicializada");
+    if (config) {
+        return config;
     }
-    return config;
+    // Fallback para entorno local: leer directamente de .env
+    const dbUser = process.env.DB_USER;
+    const dbPassword = process.env.DB_PASSWORD;
+
+    if (!dbUser || !dbPassword) {
+        throw new Error(
+            "Config no inicializada. En local, define DB_USER y DB_PASSWORD en tu .env"
+        );
+    }
+
+    return { dbUser, dbPassword };
 };
