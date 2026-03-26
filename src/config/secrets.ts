@@ -1,6 +1,7 @@
 import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 import { NodeHttpHandler } from "@smithy/node-http-handler";
 import { logger } from "../utils/logger.js";
+import { setConfig } from "./appConfig.js";
 
 interface RDSSecret {
     username: string;
@@ -41,9 +42,13 @@ export const loadSecrets = async (): Promise<void> => {
         }
 
         const secret: RDSSecret = JSON.parse(response.SecretString);
+        setConfig({
+            dbUser: secret.username,
+            dbPassword: secret.password,
+        });
         console.log("ver secret: ", secret);
         process.env.DB_USER = secret.username;
-        process.env.DB_PASSWORD = secret.password;
+        process.env.DB_PASSWORD = encodeURIComponent(secret.password);
         console.log("ver password secret: ", secret.password);
         logger.info("Secrets cargando desde Secret Manager");
     } catch (error) {
