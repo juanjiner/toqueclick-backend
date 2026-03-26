@@ -2,17 +2,15 @@ import { getPool } from "../../config/database.js";
 import { toCamelCase } from "../../utils/camelCase.js";
 import { Business } from "./business.model.js";
 
-const pool = getPool();
-
 export class BusinessRepository {
 
     async findAll(): Promise<Business[]> {
-        const result = await pool.query("SELECT * FROM toque.businesses ORDER BY id");
+        const result = await getPool().query("SELECT * FROM toque.businesses ORDER BY id");
         return toCamelCase(result.rows);
     }
 
     async findById(id: string): Promise<Business | null> {
-        const result = await pool.query(
+        const result = await getPool().query(
             "SELECT * FROM toque.businesses WHERE id=$1",
             [id]
         );
@@ -20,7 +18,7 @@ export class BusinessRepository {
     }
 
     async create(business: Business): Promise<Business> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
             INSERT INTO toque.businesses 
             (business_name, city_id, category_id, description, address, phone, logo_url) 
@@ -35,7 +33,7 @@ export class BusinessRepository {
     }
 
     async update(id: string, business: Business): Promise<Business | null> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
             UPDATE toque.businesses
             SET 
@@ -58,6 +56,6 @@ export class BusinessRepository {
     }
 
     async delete(id: string): Promise<void> {
-        await pool.query("DELETE FROM toque.businesses WHERE id=$1", [id]);
+        await getPool().query("DELETE FROM toque.businesses WHERE id=$1", [id]);
     }
 }

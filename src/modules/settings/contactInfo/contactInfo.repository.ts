@@ -2,13 +2,11 @@ import { getPool } from "../../../config/database.js";
 import { toCamelCase } from "../../../utils/camelCase.js";
 import { ContactInfo } from "./contactInfo.model.js";
 
-const pool = getPool();
-
 export class ContactInfoRepository {
 
     async findContactInfo(): Promise<ContactInfo> {
 
-        const result = await pool.query(
+        const result = await getPool().query(
             "SELECT * FROM toque.contact_info"
         );
 
@@ -16,7 +14,7 @@ export class ContactInfoRepository {
     }
 
     async create(contactInfo: ContactInfo): Promise<ContactInfo> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
         INSERT INTO toque.contact_info 
         (contact_email, support_phone, support_whatsapp) 
@@ -30,7 +28,7 @@ export class ContactInfoRepository {
     }
 
     async update(id: string, contactInfo: ContactInfo): Promise<ContactInfo | null> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
         UPDATE toque.contact_info
         SET 

@@ -2,17 +2,15 @@ import { getPool } from "../../config/database.js";
 import { toCamelCase } from "../../utils/camelCase.js";
 import { Promotion, PromoTypes, PurchaseTypes } from "./promotion.model.js";
 
-const pool = getPool();
-
 export class PromotionRepository {
 
     async findAll(): Promise<Promotion[]> {
-        const result = await pool.query("SELECT * FROM toque.promotions ORDER BY id");
+        const result = await getPool().query("SELECT * FROM toque.promotions ORDER BY id");
         return toCamelCase(result.rows);
     }
 
     async findById(id: string): Promise<Promotion | null> {
-        const result = await pool.query(
+        const result = await getPool().query(
             "SELECT * FROM toque.promotions WHERE id=$1",
             [id]
         );
@@ -21,7 +19,7 @@ export class PromotionRepository {
     }
 
     async create(promotion: Promotion): Promise<Promotion> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
             INSERT INTO toque.promotions 
             (business_name_id, city_id, title, description, promo_price, original_price,
@@ -38,7 +36,7 @@ export class PromotionRepository {
     }
 
     async update(id: string, promotion: Promotion): Promise<Promotion | null> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
             UPDATE toque.promotions
             SET 
@@ -65,17 +63,17 @@ export class PromotionRepository {
     }
 
     async delete(id: string): Promise<void> {
-        await pool.query("DELETE FROM toque.promotions WHERE id=$1", [id]);
+        await getPool().query("DELETE FROM toque.promotions WHERE id=$1", [id]);
     }
 
     async findPromoTypes(): Promise<PromoTypes[]> {
-        const result = await pool.query(
+        const result = await getPool().query(
             "SELECT id, promo FROM maestro.promo_type ORDER BY promo");
         return result.rows;
     }
 
     async findPurchaseTypes(): Promise<PurchaseTypes[]> {
-        const result = await pool.query(
+        const result = await getPool().query(
             "SELECT id, purchase FROM maestro.purchase_type ORDER BY purchase");
         return result.rows;
     }

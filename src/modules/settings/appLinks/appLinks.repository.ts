@@ -2,13 +2,11 @@ import { getPool } from "../../../config/database.js";
 import { toCamelCase } from "../../../utils/camelCase.js";
 import { AppLinks } from "./appLinks.model.js";
 
-const pool = getPool();
-
 export class AppLinksRepository {
 
     async getAppLinks(): Promise<AppLinks> {
 
-        const result = await pool.query(
+        const result = await getPool().query(
             "SELECT * FROM toque.app_download_links"
         );
 
@@ -16,7 +14,7 @@ export class AppLinksRepository {
     }
 
     async create(appLinks: AppLinks): Promise<AppLinks> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
         INSERT INTO toque.app_download_links 
         (app_store_url, google_play_url) 
@@ -30,7 +28,7 @@ export class AppLinksRepository {
     }
 
     async update(id: string, appLinks: AppLinks): Promise<AppLinks | null> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
         UPDATE toque.app_download_links
         SET 

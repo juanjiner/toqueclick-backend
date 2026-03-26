@@ -2,13 +2,11 @@ import { getPool } from "../../config/database.js";
 import { toCamelCase } from "../../utils/camelCase.js";
 import { Faq } from "./faq.model.js";
 
-const pool = getPool();
-
 export class FaqRepository {
 
     async findAll(): Promise<Faq[]> {
 
-        const result = await pool.query(
+        const result = await getPool().query(
             "SELECT * FROM toque.faqs"
         );
 
@@ -16,7 +14,7 @@ export class FaqRepository {
     }
 
     async create(faq: Faq): Promise<Faq> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
         INSERT INTO toque.faqs 
         (category_id, question, answer) 
@@ -30,7 +28,7 @@ export class FaqRepository {
     }
 
     async update(id: string, faq: Faq): Promise<Faq | null> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
         UPDATE toque.faqs
         SET 
@@ -48,6 +46,6 @@ export class FaqRepository {
     }
 
     async delete(id: string): Promise<void> {
-        await pool.query("DELETE FROM toque.faqs WHERE id=$1", [id]);
+        await getPool().query("DELETE FROM toque.faqs WHERE id=$1", [id]);
     }
 }

@@ -2,13 +2,12 @@ import { getPool } from "../../../config/database.js";
 import { toCamelCase } from "../../../utils/camelCase.js";
 import { Legal } from "./legal.model.js";
 
-const pool = getPool();
 
 export class LegalRepository {
 
     async findLegal(): Promise<Legal> {
 
-        const result = await pool.query(
+        const result = await getPool().query(
             "SELECT * FROM toque.legal_information"
         );
 
@@ -16,7 +15,7 @@ export class LegalRepository {
     }
 
     async create(legal: Legal): Promise<Legal> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
         INSERT INTO toque.legal_information 
         (company_name, ruc, legal_address) 
@@ -30,7 +29,7 @@ export class LegalRepository {
     }
 
     async update(id: string, legal: Legal): Promise<Legal | null> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
         UPDATE toque.legal_information
         SET 

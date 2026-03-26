@@ -2,13 +2,11 @@ import { getPool } from "../../../config/database.js";
 import { toCamelCase } from "../../../utils/camelCase.js";
 import { Maintenance } from "./maintenance.model.js";
 
-const pool = getPool();
-
 export class MaintenanceRepository {
 
     async findMaintenance(): Promise<Maintenance> {
 
-        const result = await pool.query(
+        const result = await getPool().query(
             "SELECT * FROM toque.site_maintenance"
         );
 
@@ -16,7 +14,7 @@ export class MaintenanceRepository {
     }
 
     async create(maintenance: Maintenance): Promise<Maintenance> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
         INSERT INTO toque.site_maintenance 
         (maintenance_mode, maintenance_message) 
@@ -30,7 +28,7 @@ export class MaintenanceRepository {
     }
 
     async update(id: string, maintenance: Maintenance): Promise<Maintenance | null> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
         UPDATE toque.site_maintenance
         SET 

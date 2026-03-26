@@ -2,13 +2,11 @@ import { getPool } from "../../../config/database.js";
 import { toCamelCase } from "../../../utils/camelCase.js";
 import { Social } from './social.model.js';
 
-const pool = getPool();
-
 export class SocialRepository {
 
     async findSocial(): Promise<Social> {
 
-        const result = await pool.query(
+        const result = await getPool().query(
             "SELECT * FROM toque.social_networks"
         );
 
@@ -16,7 +14,7 @@ export class SocialRepository {
     }
 
     async create(social: Social): Promise<Social> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
         INSERT INTO toque.social_networks 
         (facebook_url, instagram_url, twitter_url, linkedin_url) 
@@ -30,7 +28,7 @@ export class SocialRepository {
     }
 
     async update(id: string, social: Social): Promise<Social | null> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
         UPDATE toque.social_networks
         SET 

@@ -2,17 +2,16 @@ import { getPool } from "../../config/database.js";
 import { toCamelCase } from "../../utils/camelCase.js";
 import { Article } from "./article.model.js";
 
-const pool = getPool();
 
 export class ArticleRepository {
 
     async findAll(): Promise<Article[]> {
-        const result = await pool.query("SELECT * FROM toque.blog_articles ORDER BY date desc");
+        const result = await getPool().query("SELECT * FROM toque.blog_articles ORDER BY date desc");
         return toCamelCase(result.rows);
     }
 
     async findById(id: string): Promise<Article | null> {
-        const result = await pool.query(
+        const result = await getPool().query(
             "SELECT * FROM toque.blog_articles WHERE id=$1",
             [id]
         );
@@ -21,7 +20,7 @@ export class ArticleRepository {
     }
 
     async create(article: Article): Promise<Article> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
             INSERT INTO toque.blog_articles 
             (title, image_url, category_id, author, date, content, tags, published) 
@@ -36,7 +35,7 @@ export class ArticleRepository {
     }
 
     async update(id: string, article: Article): Promise<Article | null> {
-        const result = await pool.query(
+        const result = await getPool().query(
             `
             UPDATE toque.blog_articles
             SET 
@@ -60,6 +59,6 @@ export class ArticleRepository {
     }
 
     async delete(id: string): Promise<void> {
-        await pool.query("DELETE FROM toque.blog_articles WHERE id=$1", [id]);
+        await getPool().query("DELETE FROM toque.blog_articles WHERE id=$1", [id]);
     }
 }
