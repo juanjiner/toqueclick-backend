@@ -21,6 +21,7 @@ export const getPool = () => {
                     ? { rejectUnauthorized: false }
                     : false,
         }
+        console.log("RAW:", object.password);
         logger.info("ver datos de conexion: ", object);
         try {
             pool = new Pool(object);
