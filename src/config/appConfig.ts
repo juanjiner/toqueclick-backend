@@ -11,7 +11,7 @@ export const setConfig = (values: AppConfig) => {
 
 export const getConfig = (): AppConfig => {
     if (!config) {
-        throw new Error("Config no inicializada — ¿se llamó setConfig antes?");
+        throw new Error("Config no inicializada");
     }
     return config;
 };

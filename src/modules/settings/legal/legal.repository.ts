@@ -2,7 +2,6 @@ import { getPool } from "../../../config/database.js";
 import { toCamelCase } from "../../../utils/camelCase.js";
 import { Legal } from "./legal.model.js";
 
-
 export class LegalRepository {
 
     async findLegal(): Promise<Legal> {

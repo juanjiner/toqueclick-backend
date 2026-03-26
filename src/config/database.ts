@@ -5,9 +5,7 @@ import { getConfig } from "./appConfig.js";
 let pool: Pool;
 
 export const getPool = () => {
-    console.log("init...");
     if (!pool) {
-        console.log("ingresa a !pool");
         const { dbUser, dbPassword } = getConfig();
         const object = {
             host: process.env.DB_HOST,
@@ -23,8 +21,6 @@ export const getPool = () => {
                     ? { rejectUnauthorized: false }
                     : false,
         }
-        console.log("RAW:", object.password);
-        logger.info("ver datos de conexion: ", object);
         try {
             pool = new Pool(object);
         } catch (error) {

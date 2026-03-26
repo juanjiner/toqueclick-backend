@@ -2,7 +2,6 @@ import { getPool } from "../../config/database.js";
 import { toCamelCase } from "../../utils/camelCase.js";
 import { Article } from "./article.model.js";
 
-
 export class ArticleRepository {
 
     async findAll(): Promise<Article[]> {
