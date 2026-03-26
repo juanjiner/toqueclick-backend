@@ -8,7 +8,7 @@ export class PromotionRepository {
 
     async findAll(): Promise<Promotion[]> {
         const result = await pool.query("SELECT * FROM toque.promotions ORDER BY id");
-        return result.rows;
+        return toCamelCase(result.rows);
     }
 
     async findById(id: string): Promise<Promotion | null> {
@@ -17,7 +17,7 @@ export class PromotionRepository {
             [id]
         );
 
-        return result.rows[0] || null;
+        return toCamelCase(result.rows[0] || null);
     }
 
     async create(promotion: Promotion): Promise<Promotion> {

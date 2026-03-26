@@ -20,6 +20,7 @@ export const getPool = () => {
                         ? { rejectUnauthorized: false }
                         : false,
             }
+            logger.info("ver datos de conexion: ", object);
             pool = new Pool(object);
         } catch (error) {
             logger.error(error);

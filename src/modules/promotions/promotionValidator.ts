@@ -5,8 +5,8 @@ export const promotionSchema = z.object({
     cityId: z.string(),
     title: z.string(),
     description: z.string(),
-    promoPrice: z.number(),
-    originalPrice: z.number(),
+    promoPrice: z.coerce.number(),
+    originalPrice: z.coerce.number(),
     promoTypeId: z.string(),
     purchaseTypeId: z.string(),
     expirationDate: z.string()

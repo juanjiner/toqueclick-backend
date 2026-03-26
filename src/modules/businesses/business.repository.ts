@@ -8,7 +8,7 @@ export class BusinessRepository {
 
     async findAll(): Promise<Business[]> {
         const result = await pool.query("SELECT * FROM toque.businesses ORDER BY id");
-        return result.rows;
+        return toCamelCase(result.rows);
     }
 
     async findById(id: string): Promise<Business | null> {
@@ -16,7 +16,7 @@ export class BusinessRepository {
             "SELECT * FROM toque.businesses WHERE id=$1",
             [id]
         );
-        return result.rows[0] || null;
+        return toCamelCase(result.rows[0] || null);
     }
 
     async create(business: Business): Promise<Business> {

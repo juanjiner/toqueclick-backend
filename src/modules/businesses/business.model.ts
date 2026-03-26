@@ -7,4 +7,5 @@ export interface Business {
     address: string;
     phone: string;
     logoUrl: string;
+    status: string;
 }
