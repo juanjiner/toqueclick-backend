@@ -41,7 +41,7 @@ export const loadSecrets = async (): Promise<void> => {
         }
 
         const secret: RDSSecret = JSON.parse(response.SecretString);
-
+        console.log("ver secret: ", secret);
         process.env.DB_USER = secret.username;
         process.env.DB_PASSWORD = secret.password;
 
