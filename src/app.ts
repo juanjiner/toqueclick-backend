@@ -9,6 +9,7 @@ import businessRoutes from "./modules/businesses/business.routes.js";
 import faqRoutes from "./modules/faqs/faq.routes.js";
 import categoryRoutes from "./modules/categories/category.routes.js";
 import { corsConfig } from "./config/cors.js";
+import userRoutes from "./modules/users/user.routes.js";
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use("/businesses", businessRoutes);
 app.use("/promotions", promotionRoutes);
 app.use("/articles", articleRoutes);
 app.use("/faqs", faqRoutes);
+app.use("/users", userRoutes);
 
 app.use(errorMiddleware);
 
