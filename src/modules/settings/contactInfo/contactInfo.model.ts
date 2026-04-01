@@ -3,4 +3,5 @@ export interface ContactInfo {
     contactEmail: string;
     supportPhone: string;
     supportWhatsapp: string;
+    schedule: string;
 }

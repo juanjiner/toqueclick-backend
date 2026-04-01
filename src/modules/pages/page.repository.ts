@@ -12,8 +12,8 @@ export class PageRepository {
 
     async findAll(): Promise<Page[]> {
         const result = await getPool().query(
-            `SELECT id, slug, name, description, published, updated_at
-             FROM toque.pages ORDER BY id ASC`
+            `SELECT id, slug, name, description, published, updated_at, sort_order
+             FROM toque.pages ORDER BY sort_order`
         );
         return toCamelCase(result.rows);
     }

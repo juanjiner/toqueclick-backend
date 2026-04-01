@@ -17,11 +17,11 @@ export class ContactInfoRepository {
         const result = await getPool().query(
             `
         INSERT INTO toque.contact_info 
-        (contact_email, support_phone, support_whatsapp) 
-        VALUES ($1,$2,$3)
+        (contact_email, support_phone, support_whatsapp, schedule)
+        VALUES ($1,$2,$3,$4)
         RETURNING *
         `,
-            [contactInfo.contactEmail, contactInfo.supportPhone, contactInfo.supportWhatsapp]
+            [contactInfo.contactEmail, contactInfo.supportPhone, contactInfo.supportWhatsapp, contactInfo.schedule]
         );
 
         return toCamelCase(result.rows[0]);
@@ -35,11 +35,12 @@ export class ContactInfoRepository {
             contact_email=$1,
             support_phone=$2,
             support_whatsapp=$3,
+            schedule=$4,
             updated_at = CURRENT_TIMESTAMP
-        WHERE id=$4
+        WHERE id=$5
         RETURNING *
         `,
-            [contactInfo.contactEmail, contactInfo.supportPhone, contactInfo.supportWhatsapp, id]
+            [contactInfo.contactEmail, contactInfo.supportPhone, contactInfo.supportWhatsapp, contactInfo.schedule, id]
         );
 
         return toCamelCase(result.rows[0] || null);
