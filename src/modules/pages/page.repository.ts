@@ -117,6 +117,13 @@ export class PageRepository {
         return toCamelCase(result.rows[0]);
     }
 
+    async findItemById(id: string): Promise<PageItem | null> {
+        const result = await getPool().query(
+            'SELECT * FROM toque.page_items WHERE id = $1', [id]
+        );
+        return toCamelCase(result.rows[0] || null);
+    }
+
     async createItem(sectionId: string, dto: CreateItemDTO): Promise<PageItem> {
         const result = await getPool().query(
             `INSERT INTO toque.page_items

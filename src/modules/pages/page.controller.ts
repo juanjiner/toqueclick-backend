@@ -21,7 +21,11 @@ export class PageController {
     };
 
     upsertSection = async (req: Request, res: Response) => {
-        const section = await this.service.upsertSection(String(req.params.slug), req.body);
+        const section = await this.service.upsertSection(
+            String(req.params.slug),
+            req.body,
+            req.file
+        );
         res.json(successResponse(section));
     };
 
@@ -29,13 +33,18 @@ export class PageController {
         const item = await this.service.createItem(
             String(req.params.slug),
             String(req.params.sectionKey),
-            req.body
+            req.body,
+            req.file
         );
         res.status(201).json(successResponse(item));
     };
 
     updateItem = async (req: Request, res: Response) => {
-        const item = await this.service.updateItem(String(req.params.id), req.body);
+        const item = await this.service.updateItem(
+            String(req.params.id),
+            req.body,
+            req.file
+        );
         res.json(successResponse(item));
     };
 

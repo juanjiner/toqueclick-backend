@@ -70,7 +70,7 @@ export interface CreateItemDTO {
     icon?: string;
     title?: string;
     description?: string;
-    imageUrl?: string;
+    imageUrl?: string | null;
     ctaText?: string;
     ctaLink?: string;
     ctaText2?: string;

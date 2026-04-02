@@ -29,18 +29,21 @@ router.patch('/:slug',
 
 router.put('/:slug/sections',
     authenticate,
+    upload.single('image'),
     validate(upsertSectionSchema),
     asyncHandler(controller.upsertSection)
 );
 
 router.post('/:slug/sections/:sectionKey/items',
     authenticate,
+    upload.single('image'),
     validate(createItemSchema),
     asyncHandler(controller.createItem)
 );
 
 router.patch('/items/:id',
     authenticate,
+    upload.single('image'),
     validate(updateItemSchema),
     asyncHandler(controller.updateItem)
 );
@@ -56,7 +59,6 @@ router.put('/items/reorder',
     asyncHandler(controller.reorderItems)
 );
 
-// Features de items
 router.post('/items/:itemId/features',
     authenticate,
     asyncHandler(controller.createFeature)
