@@ -4,7 +4,7 @@ export const createUserSchema = z.object({
     fullName: z.string().min(1),
     email: z.string().email(),
     rol: z.enum(["Superadmin", "Editor"]),
-    temporaryPassword: z.string().min(8),
+    temporaryPassword: z.string().min(12),
 });
 
 export const updateUserSchema = z.object({
@@ -19,7 +19,7 @@ export const loginSchema = z.object({
 
 export const completeNewPasswordSchema = z.object({
     email: z.string().email(),
-    newPassword: z.string().min(8),
+    newPassword: z.string().min(12),
     session: z.string().min(1),
 });
 
@@ -29,7 +29,7 @@ export const refreshTokenSchema = z.object({
 
 export const changePasswordSchema = z.object({
     previousPassword: z.string().min(1),
-    proposedPassword: z.string().min(8),
+    proposedPassword: z.string().min(12),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -39,5 +39,5 @@ export const forgotPasswordSchema = z.object({
 export const confirmForgotPasswordSchema = z.object({
     email: z.string().email(),
     confirmationCode: z.string().min(1),
-    newPassword: z.string().min(8),
+    newPassword: z.string().min(12),
 });
