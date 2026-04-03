@@ -55,6 +55,26 @@ export class BusinessRepository {
         return toCamelCase(result.rows[0] || null);
     }
 
+    async approve(id: string): Promise<Business | null> {
+        const result = await getPool().query(
+            `UPDATE toque.businesses 
+         SET status = 'APROBADO', updated_at = CURRENT_TIMESTAMP 
+         WHERE id=$1 RETURNING *`,
+            [id]
+        );
+        return toCamelCase(result.rows[0] || null);
+    }
+
+    async reject(id: string): Promise<Business | null> {
+        const result = await getPool().query(
+            `UPDATE toque.businesses 
+         SET status = 'RECHAZADO', updated_at = CURRENT_TIMESTAMP 
+         WHERE id=$1 RETURNING *`,
+            [id]
+        );
+        return toCamelCase(result.rows[0] || null);
+    }
+
     async delete(id: string): Promise<void> {
         await getPool().query("DELETE FROM toque.businesses WHERE id=$1", [id]);
     }

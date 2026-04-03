@@ -29,6 +29,20 @@ export class BusinessesController {
         res.json(successResponse(business));
     };
 
+    approve = async (req: Request, res: Response) => {
+        const id = String(req.params.id);
+        const business = await this.service.approveBusiness(id);
+        if (!business) throw new AppError("Comercio no encontrado", 404);
+        res.json(successResponse(business));
+    };
+
+    reject = async (req: Request, res: Response) => {
+        const id = String(req.params.id);
+        const business = await this.service.rejectBusiness(id);
+        if (!business) throw new AppError("Comercio no encontrado", 404);
+        res.json(successResponse(business));
+    };
+
     delete = async (req: Request, res: Response) => {
         const id = String(req.params.id);
         await this.service.deleteBusiness(id);

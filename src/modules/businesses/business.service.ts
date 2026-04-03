@@ -31,6 +31,14 @@ export class BusinessService {
         return this.repository.update(id, { ...business, logoUrl });
     }
 
+    async approveBusiness(id: string): Promise<Business | null> {
+        return this.repository.approve(id);
+    }
+
+    async rejectBusiness(id: string): Promise<Business | null> {
+        return this.repository.reject(id);
+    }
+
     async deleteBusiness(id: string): Promise<void> {
         const existing = await this.repository.findById(id);
         if (existing?.logoUrl) {

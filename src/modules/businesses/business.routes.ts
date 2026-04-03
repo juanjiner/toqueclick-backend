@@ -12,6 +12,8 @@ const upload = uploadFactory();
 router.get("/", asyncHandler(controller.getAll));
 router.post("/", upload.single("image"), validate(businessSchema), asyncHandler(controller.create));
 router.put("/:id", upload.single("image"), validate(businessSchema), asyncHandler(controller.update));
+router.patch("/:id/approve", asyncHandler(controller.approve));
+router.patch("/:id/reject", asyncHandler(controller.reject));
 router.delete("/:id", asyncHandler(controller.delete));
 
 export default router;
