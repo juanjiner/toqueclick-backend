@@ -28,7 +28,7 @@ export const refreshTokenSchema = z.object({
 });
 
 export const changePasswordSchema = z.object({
-    previousPassword: z.string().min(1),
+    previousPassword: z.string().min(12),
     proposedPassword: z.string().min(12),
 });
 
