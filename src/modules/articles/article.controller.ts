@@ -12,6 +12,11 @@ export class ArticleController {
         res.json(successResponse(articles));
     };
 
+    getById = async (_req: Request, res: Response) => {
+        const article = await this.service.getById(String(_req.params.id))
+        res.json(successResponse(article));
+    };
+
     create = async (req: Request, res: Response) => {
         if (!req.file) throw new AppError("Imagen requerida", 400);
 

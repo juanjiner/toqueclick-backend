@@ -12,6 +12,10 @@ export class ArticleService {
         return this.repository.findAll();
     }
 
+    getById(id: string): Promise<Article | null> {
+        return this.repository.findById(id);
+    }
+
     async createArticle(data: Article, file: Express.Multer.File): Promise<Article> {
         const imageUrl = await this.storage.uploadFile(file, this.folder);
         return this.repository.create({ ...data, imageUrl });

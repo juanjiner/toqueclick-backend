@@ -11,6 +11,7 @@ import categoryRoutes from "./modules/categories/category.routes.js";
 import { corsConfig } from "./config/cors.js";
 import userRoutes from "./modules/users/user.routes.js";
 import pageRoutes from "./modules/pages/page.routes.js";
+import businessregistrationsRoutes from "./modules/businessRegistrations/businessregistrations.routes.js";
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/settings", settingsRoutes);
 app.use("/cities", departamentRoutes);
 app.use("/categories", categoryRoutes);
 app.use("/businesses", businessRoutes);
+app.use("/businesses-registrations", businessregistrationsRoutes)
 app.use("/promotions", promotionRoutes);
 app.use("/articles", articleRoutes);
 app.use("/faqs", faqRoutes);
