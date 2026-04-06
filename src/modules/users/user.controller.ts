@@ -9,6 +9,7 @@ export class UserController {
 
     // Auth
     login = async (req: Request, res: Response) => {
+        console.log("controlador: ", req.body);
         const result = await this.service.login(req.body);
         res.json(successResponse(result));
     };

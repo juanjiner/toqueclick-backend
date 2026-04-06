@@ -25,7 +25,7 @@ export const errorMiddleware = (
             message: err.message
         });
     }
-
+    console.log("ver Middleware: ", err.message);
     res.status(status).json({
         success: false,
         message: err.message || "Internal server error"

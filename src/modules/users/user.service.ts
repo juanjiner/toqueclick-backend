@@ -18,6 +18,7 @@ export class UserService {
 
     // Auth
     login(dto: LoginDTO): Promise<LoginResult> {
+        console.log("Servicio: ", dto);
         return this.repository.cognitoLogin(dto);
     }
 
