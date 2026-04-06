@@ -60,8 +60,6 @@ jobs:
           jq -n \
             --arg DB_HOST "${{ secrets.PRD_DB_HOST }}" \
             --arg DB_PORT "${{ secrets.PRD_DB_PORT }}" \
-            --arg DB_USER "${{ secrets.PRD_DB_USER }}" \
-            --arg DB_PASSWORD "${{ secrets.PRD_DB_PASSWORD }}" \
             --arg DB_NAME "${{ secrets.PRD_DB_NAME }}" \
             --arg DB_SSL "${{ secrets.PRD_DB_SSL }}" \
             --arg AWS_BUCKET "${{ secrets.PRD_AWS_BUCKET }}" \
@@ -72,8 +70,6 @@ jobs:
               Variables: {
                 DB_HOST: $DB_HOST,
                 DB_PORT: $DB_PORT,
-                DB_USER: $DB_USER,
-                DB_PASSWORD: $DB_PASSWORD,
                 DB_NAME: $DB_NAME,
                 DB_SSL: $DB_SSL,
                 AWS_BUCKET: $AWS_BUCKET,

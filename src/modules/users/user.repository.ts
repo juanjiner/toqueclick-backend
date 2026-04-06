@@ -162,8 +162,6 @@ export class UserRepository {
     }
 
     async cognitoLogin(dto: LoginDTO): Promise<LoginResult> {
-        console.log("CLIENT_ID:", CLIENT_ID);
-        console.log("repositorio: ", dto);
         try {
 
             const response = await cognitoClient.send(
@@ -177,8 +175,6 @@ export class UserRepository {
                 })
             );
 
-            console.log("Response: ", response);
-
             if (response.ChallengeName === "NEW_PASSWORD_REQUIRED") {
                 return {
                     requiresNewPassword: true,
@@ -191,7 +187,7 @@ export class UserRepository {
             if (!result?.AccessToken || !result?.IdToken || !result?.RefreshToken) {
                 throw new Error("Respuesta de autenticación incompleta");
             }
-            console.log("resultado: ", result);
+
             return {
                 requiresNewPassword: false,
                 tokens: {
@@ -205,9 +201,6 @@ export class UserRepository {
             console.error("ERROR REAL:", error);
             throw error;
         }
-
-
-
 
     }
 
