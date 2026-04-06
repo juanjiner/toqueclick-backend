@@ -8,7 +8,7 @@ import articleRoutes from "./modules/articles/article.routes.js";
 import businessRoutes from "./modules/businesses/business.routes.js";
 import faqRoutes from "./modules/faqs/faq.routes.js";
 import categoryRoutes from "./modules/categories/category.routes.js";
-//import { corsConfig } from "./config/cors.js";
+import { corsConfig } from "./config/cors.js";
 import userRoutes from "./modules/users/user.routes.js";
 import pageRoutes from "./modules/pages/page.routes.js";
 import businessregistrationsRoutes from "./modules/businessRegistrations/businessregistrations.routes.js";
@@ -16,7 +16,7 @@ import dashboardRouter from "./modules/dashboard/dashboard.router.js";
 
 const app = express();
 
-//app.use(corsConfig);
+app.use(corsConfig);
 
 app.use(express.json());
 
