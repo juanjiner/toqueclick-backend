@@ -10,6 +10,7 @@ export interface Promotion {
     purchaseTypeId: string;
     expirationDate: Date;
     imageUrl: string;
+    views?: number;
 }
 
 export interface PromoTypes {

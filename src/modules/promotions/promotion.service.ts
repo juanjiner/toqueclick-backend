@@ -29,6 +29,10 @@ export class PromotionService {
         return this.repository.update(id, { ...promotion, imageUrl });
     }
 
+    async incrementViews(id: string): Promise<void> {
+        await this.repository.incrementViews(id);
+    }
+
     async deletePromotion(id: string): Promise<void> {
         const existing = await this.repository.findById(id);
 

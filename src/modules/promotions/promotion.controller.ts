@@ -29,6 +29,11 @@ export class PromotionController {
         res.json(successResponse(promotion));
     };
 
+    incrementViews = async (req: Request, res: Response) => {
+        await this.service.incrementViews(String(req.params.id));
+        res.status(204).send();
+    }
+
     delete = async (req: Request, res: Response) => {
         const id = String(req.params.id);
         await this.service.deletePromotion(id);

@@ -6,7 +6,7 @@ export interface BusinessRegistration {
     tradeName: string;
     ruc: string;
     categoryId: string;
-    departmentId: string;
+    departamentId: string;
     provinceId: string;
     districtId: string;
 

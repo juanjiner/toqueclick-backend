@@ -18,6 +18,11 @@ export class BusinessController {
         res.json(successResponse(business));
     };
 
+    getPending = async (_req: Request, res: Response) => {
+        const data = await this.service.getPendingBusinesses();
+        res.json(successResponse(data));
+    };
+
     create = async (req: Request, res: Response) => {
         const data = await this.service.createBusiness(req.body);
         res.status(201).json(successResponse(data));

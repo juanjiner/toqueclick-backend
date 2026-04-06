@@ -6,6 +6,7 @@ const router = Router();
 const controller = new DepartamentController();
 
 router.get("/departaments", asyncHandler(controller.getDepartaments));
+router.get("/longitud/:longitud/latitud/:latitud", asyncHandler(controller.getDepartamentByCoordinates));
 router.get("/departament/:departament/provinces", asyncHandler(controller.getProvinces));
 router.get("/province/:province/districts", asyncHandler(controller.getDistricts));
 

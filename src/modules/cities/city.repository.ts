@@ -1,13 +1,22 @@
 import { getPool } from "../../config/database.js";
 import { Departament, Province, District } from "./city.model.js";
 
-
 export class CityRepository {
 
     async findDepartaments(): Promise<Departament[]> {
         const result = await getPool().query(
             "SELECT id, departament FROM maestro.departament ORDER BY departament");
         return result.rows;
+    }
+
+    async findDepartamentByCoordinates(longitud: string, latitud: string): Promise<Departament> {
+        const result = await getPool().query(
+            `SELECT id, departament
+            FROM maestro.departament
+            WHERE ST_Contains(d.geom, ST_SetSRID(ST_MakePoint($1, $2), 4326))`,
+            [longitud, latitud]
+        );
+        return result.rows[0];
     }
 
     async findProvincesByDepartament(department: string): Promise<Province[]> {

@@ -62,6 +62,13 @@ export class PromotionRepository {
         return toCamelCase(result.rows[0] || null);
     }
 
+    async incrementViews(id: string): Promise<void> {
+        await getPool().query(
+            "UPDATE toque.promotions SET views = views + 1 WHERE id=$1",
+            [id]
+        );
+    }
+
     async delete(id: string): Promise<void> {
         await getPool().query("DELETE FROM toque.promotions WHERE id=$1", [id]);
     }

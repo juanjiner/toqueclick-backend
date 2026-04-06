@@ -9,6 +9,10 @@ export class CityService {
         return this.repository.findDepartaments();
     }
 
+    getDepartamentByCoordinates(longitud: string, latitud: string): Promise<Departament> {
+        return this.repository.findDepartamentByCoordinates(longitud, latitud);
+    }
+
     getProvinces(departament: string): Promise<Province[]> {
         return this.repository.findProvincesByDepartament(departament);
     }

@@ -19,12 +19,21 @@ export class BusinessRepository {
         return toCamelCase(result.rows[0] || null);
     }
 
+    async findPending(): Promise<BusinessRegistration[]> {
+        const result = await getPool().query(
+            `SELECT * FROM toque.business_registrations 
+         WHERE status = 'submitted' 
+         ORDER BY created_at DESC`
+        );
+        return toCamelCase(result.rows);
+    }
+
     async create(business: BusinessRegistration): Promise<BusinessRegistration> {
         const result = await getPool().query(
             `
             INSERT INTO toque.business_registrations (
                 legal_name, trade_name, ruc, category_id,
-                department, province, district,
+                departament_id, province_id, district_id,
                 contact_name, contact_position, phone, email,
                 benefit_percentage_discounts, benefit_2x1_promotions,
                 benefit_free_products, benefit_loyalty_points,
@@ -38,7 +47,7 @@ export class BusinessRepository {
             `,
             [
                 business.legalName, business.tradeName, business.ruc, business.categoryId,
-                business.departmentId, business.provinceId, business.districtId,
+                business.departamentId, business.provinceId, business.districtId,
                 business.contactName, business.contactPosition, business.phone, business.email,
                 business.benefitPercentageDiscounts, business.benefit2x1Promotions,
                 business.benefitFreeProducts, business.benefitLoyaltyPoints,
@@ -58,9 +67,9 @@ export class BusinessRepository {
                 trade_name = $2,
                 ruc = $3,
                 category_id = $4,
-                department = $5,
-                province = $6,
-                district = $7,
+                departament_id = $5,
+                province_id = $6,
+                district_id = $7,
                 contact_name = $8,
                 contact_position = $9,
                 phone = $10,
@@ -79,7 +88,7 @@ export class BusinessRepository {
             `,
             [
                 business.legalName, business.tradeName, business.ruc, business.categoryId,
-                business.departmentId, business.provinceId, business.districtId,
+                business.departamentId, business.provinceId, business.districtId,
                 business.contactName, business.contactPosition, business.phone, business.email,
                 business.benefitPercentageDiscounts, business.benefit2x1Promotions,
                 business.benefitFreeProducts, business.benefitLoyaltyPoints,

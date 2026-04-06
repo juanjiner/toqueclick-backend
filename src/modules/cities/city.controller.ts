@@ -11,6 +11,13 @@ export class DepartamentController {
         res.json(successResponse(departaments));
     };
 
+    getDepartamentByCoordinates = async (_req: Request, res: Response) => {
+        const longitud = String(_req.params.longitud);
+        const latitud = String(_req.params.latitud);
+        const departament = await this.service.getDepartamentByCoordinates(longitud, latitud);
+        res.json(successResponse(departament));
+    };
+
     getProvinces = async (_req: Request, res: Response) => {
         const departament = String(_req.params.departament);
         const provinces = await this.service.getProvinces(departament);

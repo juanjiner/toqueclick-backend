@@ -12,6 +12,7 @@ const upload = uploadFactory();
 router.get("/", asyncHandler(controller.getAll));
 router.post("/", upload.single("image"), validate(promotionSchema), asyncHandler(controller.create));
 router.put("/:id", upload.single("image"), validate(promotionSchema), asyncHandler(controller.update));
+router.patch('/:id/views', asyncHandler(controller.incrementViews));
 router.delete("/:id", asyncHandler(controller.delete));
 router.get("/promo-types", asyncHandler(controller.getPromoTypes));
 router.get("/purchase-types", asyncHandler(controller.getPurchaseTypes));

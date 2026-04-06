@@ -13,6 +13,10 @@ export class BusinessService {
         return this.repository.findById(id);
     }
 
+    getPendingBusinesses(): Promise<BusinessRegistration[]> {
+        return this.repository.findPending();
+    }
+
     createBusiness(data: BusinessRegistration): Promise<BusinessRegistration> {
         return this.repository.create({ ...data, status: "submitted" });
     }

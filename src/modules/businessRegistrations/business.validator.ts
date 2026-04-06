@@ -10,10 +10,10 @@ export const businessSchema = z.object({
     legalName: z.string().min(1),
     tradeName: z.string().min(1),
     ruc: z.string().length(11).regex(/^\d{11}$/),
-    categoryId: z.string().uuid(),
-    departmentId: z.string().uuid(),
-    provinceId: z.string().uuid(),
-    districtId: z.string().uuid(),
+    categoryId: z.string(),
+    departamentId: z.string(),
+    provinceId: z.string(),
+    districtId: z.string(),
 
     // Step 2
     contactName: z.string().min(1),

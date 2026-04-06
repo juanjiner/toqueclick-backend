@@ -8,6 +8,7 @@ const router = Router();
 const controller = new BusinessController();
 
 router.get("/", asyncHandler(controller.getAll));
+router.get("/pending", asyncHandler(controller.getPending));
 router.get("/:id", asyncHandler(controller.getById));
 router.post("/", validate(businessSchema), asyncHandler(controller.create));
 router.put("/:id", validate(businessSchema), asyncHandler(controller.update));
