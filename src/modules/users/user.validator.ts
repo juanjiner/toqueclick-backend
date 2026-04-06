@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const createUserSchema = z.object({
     fullName: z.string().min(1),
-    email: z.string().email(),
+    email: z.string(),
     rol: z.enum(["Superadmin", "Editor"]),
     temporaryPassword: z.string().min(12),
 });
@@ -13,12 +13,12 @@ export const updateUserSchema = z.object({
 });
 
 export const loginSchema = z.object({
-    email: z.string().email(),
+    email: z.string(),
     password: z.string().min(1),
 });
 
 export const completeNewPasswordSchema = z.object({
-    email: z.string().email(),
+    email: z.string(),
     newPassword: z.string().min(12),
     session: z.string().min(1),
 });
@@ -33,11 +33,11 @@ export const changePasswordSchema = z.object({
 });
 
 export const forgotPasswordSchema = z.object({
-    email: z.string().email(),
+    email: z.string(),
 });
 
 export const confirmForgotPasswordSchema = z.object({
-    email: z.string().email(),
+    email: z.string(),
     confirmationCode: z.string().min(1),
     newPassword: z.string().min(12),
 });
