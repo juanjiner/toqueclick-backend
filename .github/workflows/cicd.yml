@@ -66,6 +66,8 @@ jobs:
             --arg DB_SSL "${{ secrets.PRD_DB_SSL }}" \
             --arg AWS_BUCKET "${{ secrets.PRD_AWS_BUCKET }}" \
             --arg SECRET_MANAGER "${{ secrets.SECRET_MANAGER }}" \
+            --arg COGNITO_USER_POOL_ID "${{ secrets.PRD_COGNITO_USER_POOL_ID }}" \
+            --arg COGNITO_CLIENT_ID "${{ secrets.PRD_COGNITO_CLIENT_ID }}" \
             '{
               Variables: {
                 DB_HOST: $DB_HOST,
@@ -75,7 +77,9 @@ jobs:
                 DB_NAME: $DB_NAME,
                 DB_SSL: $DB_SSL,
                 AWS_BUCKET: $AWS_BUCKET,
-                SECRET_MANAGER: $SECRET_MANAGER
+                SECRET_MANAGER: $SECRET_MANAGER,
+                COGNITO_USER_POOL_ID: $COGNITO_USER_POOL_ID,
+                COGNITO_CLIENT_ID: $COGNITO_CLIENT_ID
               }
             }' > env.json
 
