@@ -162,39 +162,53 @@ export class UserRepository {
     }
 
     async cognitoLogin(dto: LoginDTO): Promise<LoginResult> {
+        console.log("CLIENT_ID:", CLIENT_ID);
         console.log("repositorio: ", dto);
-        const response = await cognitoClient.send(
-            new InitiateAuthCommand({
-                AuthFlow: "USER_PASSWORD_AUTH",
-                ClientId: CLIENT_ID,
-                AuthParameters: {
-                    USERNAME: dto.email,
-                    PASSWORD: dto.password,
-                },
-            })
-        );
-        console.log("Response: ", response);
-        if (response.ChallengeName === "NEW_PASSWORD_REQUIRED") {
+        try {
+
+            const response = await cognitoClient.send(
+                new InitiateAuthCommand({
+                    AuthFlow: "USER_PASSWORD_AUTH",
+                    ClientId: CLIENT_ID,
+                    AuthParameters: {
+                        USERNAME: dto.email,
+                        PASSWORD: dto.password,
+                    },
+                })
+            );
+
+            console.log("Response: ", response);
+
+            if (response.ChallengeName === "NEW_PASSWORD_REQUIRED") {
+                return {
+                    requiresNewPassword: true,
+                    session: response.Session!,
+                    email: dto.email,
+                };
+            }
+
+            const result = response.AuthenticationResult;
+            if (!result?.AccessToken || !result?.IdToken || !result?.RefreshToken) {
+                throw new Error("Respuesta de autenticación incompleta");
+            }
+            console.log("resultado: ", result);
             return {
-                requiresNewPassword: true,
-                session: response.Session!,
-                email: dto.email,
+                requiresNewPassword: false,
+                tokens: {
+                    accessToken: result.AccessToken,
+                    idToken: result.IdToken,
+                    refreshToken: result.RefreshToken,
+                },
             };
+
+        } catch (error) {
+            console.error("ERROR REAL:", error);
+            throw error;
         }
 
-        const result = response.AuthenticationResult;
-        if (!result?.AccessToken || !result?.IdToken || !result?.RefreshToken) {
-            throw new Error("Respuesta de autenticación incompleta");
-        }
-        console.log("resultado: ", result);
-        return {
-            requiresNewPassword: false,
-            tokens: {
-                accessToken: result.AccessToken,
-                idToken: result.IdToken,
-                refreshToken: result.RefreshToken,
-            },
-        };
+
+
+
     }
 
     async cognitoCompleteNewPassword(dto: CompleteNewPasswordDTO): Promise<AuthTokens> {
