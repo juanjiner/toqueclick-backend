@@ -13,6 +13,7 @@ import userRoutes from "./modules/users/user.routes.js";
 import pageRoutes from "./modules/pages/page.routes.js";
 import businessregistrationsRoutes from "./modules/businessRegistrations/businessregistrations.routes.js";
 import dashboardRouter from "./modules/dashboard/dashboard.router.js";
+import subscriptionRoutes from "./modules/subscriptions/subscription.routes.js";
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use("/faqs", faqRoutes);
 app.use("/users", userRoutes);
 app.use('/pages', pageRoutes);
 app.use("/dashboard", dashboardRouter);
+app.use("/subscriptions", subscriptionRoutes);
 
 app.use(errorMiddleware);
 
