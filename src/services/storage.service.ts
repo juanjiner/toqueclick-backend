@@ -20,7 +20,8 @@ export class StorageService {
             Bucket: storageConfig.bucket,
             Key: key,
             Body: file.buffer,
-            ContentType: file.mimetype
+            ContentType: file.mimetype,
+            CacheControl: "public, max-age=31536000, immutable"
         }));
 
         return key;
