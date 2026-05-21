@@ -11,6 +11,7 @@ import { LegalController } from "./legal/legal.controller.js";
 import { legalSchema } from "./legal/legalValidator.js";
 import { MaintenanceController } from "./maintenance/maintenance.controller.js";
 import { maintenanceSchema } from "./maintenance/maintenanceValidator.js";
+import { BootstrapController } from "./bootstrap/bootstrap.controller.js";
 
 const router = Router();
 const controller = new AppLinksController();
@@ -18,6 +19,7 @@ const contactInfoController = new ContactInfoController();
 const socialController = new SocialController();
 const legalController = new LegalController();
 const maintenanceController = new MaintenanceController();
+const bootstrapController = new BootstrapController();
 
 router.get("/app-links", asyncHandler(controller.getAppLinks));
 router.post("/app-links", validate(appLinksSchema), asyncHandler(controller.create));
@@ -38,5 +40,7 @@ router.put("/legal/:id", validate(legalSchema), asyncHandler(legalController.upd
 router.get("/maintenance", asyncHandler(maintenanceController.getMaintenance));
 router.post("/maintenance", validate(maintenanceSchema), asyncHandler(maintenanceController.create));
 router.put("/maintenance/:id", validate(maintenanceSchema), asyncHandler(maintenanceController.update));
+
+router.get("/bootstrap", asyncHandler(bootstrapController.getBootstrap));
 
 export default router;
