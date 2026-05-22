@@ -9,15 +9,25 @@ const s3 = new S3Client({
 
 const IMAGE_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
 
+const MAX_DIMENSION = 1200;
+const WEBP_QUALITY = 82;
+
 export class StorageService {
 
     private getKey(folder: string, filename: string): string {
         return `static/${folder}/${filename}`;
     }
 
-    private async convertToWebP(buffer: Buffer): Promise<Buffer> {
+    private async processImage(buffer: Buffer): Promise<Buffer> {
         return sharp(buffer)
-            .webp({ quality: 85 })
+            .rotate()
+            .resize({
+                width: MAX_DIMENSION,
+                height: MAX_DIMENSION,
+                fit: 'inside',
+                withoutEnlargement: true
+            })
+            .webp({ quality: WEBP_QUALITY })
             .toBuffer();
     }
 
@@ -27,8 +37,8 @@ export class StorageService {
         let filename = file.originalname;
         let contentType = file.mimetype;
 
-        if (IMAGE_MIME_TYPES.includes(file.mimetype) && file.mimetype !== 'image/webp') {
-            buffer = await this.convertToWebP(file.buffer);
+        if (IMAGE_MIME_TYPES.includes(file.mimetype)) {
+            buffer = await this.processImage(file.buffer);
             filename = path.basename(filename, path.extname(filename)) + '.webp';
             contentType = 'image/webp';
         }
