@@ -11,6 +11,11 @@ export class CategoryController {
         res.json(successResponse(businessCategories));
     };
 
+    create = async (req: Request, res: Response) => {
+        const business = await this.service.createBusinessCategory(req.body);
+        res.status(201).json(successResponse(business));
+    };
+
     getBlogCategories = async (_req: Request, res: Response) => {
         const blogCategories = await this.service.getBlogCategories();
         res.json(successResponse(blogCategories));

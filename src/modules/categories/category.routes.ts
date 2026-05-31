@@ -6,6 +6,7 @@ const router = Router();
 const controller = new CategoryController();
 
 router.get("/business", asyncHandler(controller.getBusinessCategories));
+router.post("/business", asyncHandler(controller.create));
 router.get("/blog", asyncHandler(controller.getBlogCategories));
 router.get("/faq", asyncHandler(controller.getFaqCategories));
 
