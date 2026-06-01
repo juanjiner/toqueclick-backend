@@ -1,6 +1,6 @@
 import { getPool } from "../../config/database.js";
 import { toCamelCase } from "../../utils/camelCase.js";
-import { BusinessRegistration } from "./business.model.js";
+import { BusinessRegistration, ImportRow } from "./business.model.js";
 
 export class BusinessRepository {
 
@@ -118,5 +118,126 @@ export class BusinessRepository {
             "DELETE FROM toque.business_registrations WHERE id = $1",
             [id]
         );
+    }
+
+    async previewImport(rows: ImportRow[]): Promise<{ total: number; matched: number; samples: any[] }> {
+        if (rows.length === 0) return { total: 0, matched: 0, samples: [] };
+
+        const counts = await getPool().query(
+            `
+        SELECT
+            count(*)::int AS total,
+            count(*) FILTER (
+                WHERE cat.id IS NOT NULL AND dep.id IS NOT NULL
+                  AND prov.id IS NOT NULL AND dist.id IS NOT NULL
+            )::int AS matched
+        FROM jsonb_to_recordset($1::jsonb) AS x(
+            legal_name text, ruc text, category text,
+            departament text, province text, district text,
+            contact_name text, phone text, email text
+        )
+        LEFT JOIN maestro.business_categories cat
+            ON upper(trim(cat.business_category)) = upper(trim(x.category))
+        LEFT JOIN maestro.departament dep
+            ON upper(trim(dep.departament)) = upper(trim(x.departament))
+        LEFT JOIN maestro.province prov
+            ON upper(trim(prov.province)) = upper(trim(x.province))
+           AND prov.ccdd::text = dep.id::text
+        LEFT JOIN maestro.district dist
+            ON upper(trim(dist.district)) = upper(trim(x.district))
+           AND dist.ccpp::text = prov.id::text
+        `,
+            [JSON.stringify(rows)]
+        );
+
+        // muestra de las que NO hicieron match, para depurar
+        const samples = await getPool().query(
+            `
+        SELECT x.category, x.departament, x.province, x.district,
+               (cat.id IS NULL)  AS rubro_falta,
+               (dep.id IS NULL)  AS depto_falta,
+               (prov.id IS NULL) AS prov_falta,
+               (dist.id IS NULL) AS dist_falta
+        FROM jsonb_to_recordset($1::jsonb) AS x(
+            legal_name text, ruc text, category text,
+            departament text, province text, district text,
+            contact_name text, phone text, email text
+        )
+        LEFT JOIN maestro.business_categories cat
+            ON upper(trim(cat.business_category)) = upper(trim(x.category))
+        LEFT JOIN maestro.departament dep
+            ON upper(trim(dep.departament)) = upper(trim(x.departament))
+        LEFT JOIN maestro.province prov
+            ON upper(trim(prov.province)) = upper(trim(x.province))
+           AND prov.ccdd::text = dep.id::text
+        LEFT JOIN maestro.district dist
+            ON upper(trim(dist.district)) = upper(trim(x.district))
+           AND dist.ccpp::text = prov.id::text
+        WHERE cat.id IS NULL OR dep.id IS NULL OR prov.id IS NULL OR dist.id IS NULL
+        LIMIT 20
+        `,
+            [JSON.stringify(rows)]
+        );
+
+        return {
+            total: counts.rows[0].total,
+            matched: counts.rows[0].matched,
+            samples: samples.rows,
+        };
+    }
+
+    async bulkInsert(rows: ImportRow[]): Promise<number> {
+        if (rows.length === 0) return 0;
+
+        const result = await getPool().query(
+            `
+        WITH resolved AS (
+            SELECT
+                x.legal_name, x.ruc, x.contact_name, x.phone, x.email,
+                cat.id  AS category_id,
+                dep.id  AS departament_id,
+                prov.id AS province_id,
+                dist.id AS district_id
+            FROM jsonb_to_recordset($1::jsonb) AS x(
+                legal_name text, ruc text, category text,
+                departament text, province text, district text,
+                contact_name text, phone text, email text
+            )
+            LEFT JOIN maestro.business_categories cat
+                ON upper(trim(cat.business_category)) = upper(trim(x.category))
+            LEFT JOIN maestro.departament dep
+                ON upper(trim(dep.departament)) = upper(trim(x.departament))
+            LEFT JOIN maestro.province prov
+                ON upper(trim(prov.province)) = upper(trim(x.province))
+               AND prov.ccdd::text = dep.id::text
+            LEFT JOIN maestro.district dist
+                ON upper(trim(dist.district)) = upper(trim(x.district))
+               AND dist.ccpp::text = prov.id::text
+        )
+        INSERT INTO toque.business_registrations (
+            legal_name, trade_name, ruc, category_id,
+            departament_id, province_id, district_id,
+            contact_name, contact_position, phone, email,
+            benefit_percentage_discounts, benefit_2x1_promotions,
+            benefit_free_products, benefit_loyalty_points,
+            benefit_exclusive_offers, additional_comments,
+            terms_accepted, status
+        )
+        SELECT
+            legal_name, legal_name, ruc, category_id,
+            departament_id, province_id, district_id,
+            contact_name, 'otro', phone, email,
+            false, false, false, false, false, null,
+            true, 'submitted'
+        FROM resolved
+        WHERE category_id IS NOT NULL
+          AND departament_id IS NOT NULL
+          AND province_id IS NOT NULL
+          AND district_id IS NOT NULL
+        `,
+            [JSON.stringify(rows)]
+        );
+
+        return result.rowCount ?? 0;
     }
 }

@@ -48,4 +48,20 @@ export class BusinessController {
         await this.service.deleteBusiness(id);
         res.status(204).send();
     };
+
+    bulkImport = async (req: Request, res: Response) => {
+        const { rows, dryRun } = req.body;
+
+        if (!Array.isArray(rows)) {
+            throw new AppError("Se espera un arreglo 'rows'", 400);
+        }
+
+        if (dryRun) {
+            const preview = await this.service.previewImport(rows);
+            return res.json(successResponse(preview));
+        }
+
+        const inserted = await this.service.bulkInsert(rows);
+        res.status(201).json(successResponse({ inserted, received: rows.length }));
+    };
 }
