@@ -1,4 +1,3 @@
-import { BusinessCategory } from "./category.model.js";
 import { CategoryRepository } from "./category.repository.js";
 
 export class CategoryService {
@@ -7,10 +6,6 @@ export class CategoryService {
 
     getBusinessCategories() {
         return this.repository.findBusinessCategories();
-    }
-
-    async createBusinessCategory(business: BusinessCategory): Promise<BusinessCategory> {
-        return this.repository.create(business);
     }
 
     getBlogCategories() {
