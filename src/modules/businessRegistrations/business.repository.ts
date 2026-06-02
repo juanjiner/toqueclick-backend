@@ -28,16 +28,33 @@ const RESOLVE_JOINS = `
 
 export class BusinessRepository {
 
-    async findAll(limit: number, offset: number): Promise<{ data: BusinessRegistration[]; total: number }> {
+    async findAll(limit: number, offset: number, search?: string): Promise<{ data: BusinessRegistration[]; total: number }> {
+        const where = search
+            ? `WHERE legal_name ILIKE $3 OR trade_name ILIKE $3 OR ruc ILIKE $3
+              OR contact_name ILIKE $3 OR email ILIKE $3`
+            : "";
+
+        const params: any[] = [limit, offset];
+        if (search) params.push(`%${search}%`);
+
         const dataResult = await getPool().query(
             `SELECT * FROM toque.business_registrations
+         ${where}
          ORDER BY created_at DESC
          LIMIT $1 OFFSET $2`,
-            [limit, offset]
+            params
         );
 
+        const countParams: any[] = [];
+        if (search) countParams.push(`%${search}%`);
+        const countWhere = search
+            ? `WHERE legal_name ILIKE $1 OR trade_name ILIKE $1 OR ruc ILIKE $1
+              OR contact_name ILIKE $1 OR email ILIKE $1`
+            : "";
+
         const countResult = await getPool().query(
-            "SELECT count(*)::int AS total FROM toque.business_registrations"
+            `SELECT count(*)::int AS total FROM toque.business_registrations ${countWhere}`,
+            countParams
         );
 
         return {

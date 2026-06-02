@@ -5,8 +5,8 @@ export class BusinessService {
 
     private repository = new BusinessRepository();
 
-    getBusinesses(limit: number, offset: number) {
-        return this.repository.findAll(limit, offset);
+    getBusinesses(limit: number, offset: number, search?: string) {
+        return this.repository.findAll(limit, offset, search);
     }
 
     getById(id: string): Promise<BusinessRegistration | null> {

@@ -10,18 +10,14 @@ export class BusinessController {
     getAll = async (req: Request, res: Response) => {
         const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
         const pageSize = Math.min(100, Math.max(1, parseInt(String(req.query.pageSize ?? "20"), 10) || 20));
+        const search = req.query.search ? String(req.query.search).trim() : undefined;
         const offset = (page - 1) * pageSize;
 
-        const { data, total } = await this.service.getBusinesses(pageSize, offset);
+        const { data, total } = await this.service.getBusinesses(pageSize, offset, search);
 
         res.json(successResponse({
             data,
-            pagination: {
-                page,
-                pageSize,
-                total,
-                totalPages: Math.ceil(total / pageSize),
-            },
+            pagination: { page, pageSize, total, totalPages: Math.ceil(total / pageSize) },
         }));
     };
 
