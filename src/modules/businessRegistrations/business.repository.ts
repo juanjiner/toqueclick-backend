@@ -47,7 +47,7 @@ export class BusinessRepository {
         const result = await getPool().query(
             `SELECT * FROM toque.business_registrations 
          WHERE status = 'submitted' 
-         ORDER BY created_at DESC limit 1000`
+         ORDER BY created_at DESC limit 10`
         );
         return toCamelCase(result.rows);
     }
