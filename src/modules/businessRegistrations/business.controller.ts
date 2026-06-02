@@ -7,9 +7,22 @@ export class BusinessController {
 
     private service = new BusinessService();
 
-    getAll = async (_req: Request, res: Response) => {
-        const businesses = await this.service.getBusinesses();
-        res.json(successResponse(businesses));
+    getAll = async (req: Request, res: Response) => {
+        const page = Math.max(1, parseInt(String(req.query.page ?? "1"), 10) || 1);
+        const pageSize = Math.min(100, Math.max(1, parseInt(String(req.query.pageSize ?? "20"), 10) || 20));
+        const offset = (page - 1) * pageSize;
+
+        const { data, total } = await this.service.getBusinesses(pageSize, offset);
+
+        res.json(successResponse({
+            data,
+            pagination: {
+                page,
+                pageSize,
+                total,
+                totalPages: Math.ceil(total / pageSize),
+            },
+        }));
     };
 
     getById = async (req: Request, res: Response) => {

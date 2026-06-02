@@ -28,11 +28,22 @@ const RESOLVE_JOINS = `
 
 export class BusinessRepository {
 
-    async findAll(): Promise<BusinessRegistration[]> {
-        const result = await getPool().query(
-            "SELECT * FROM toque.business_registrations ORDER BY created_at DESC"
+    async findAll(limit: number, offset: number): Promise<{ data: BusinessRegistration[]; total: number }> {
+        const dataResult = await getPool().query(
+            `SELECT * FROM toque.business_registrations
+         ORDER BY created_at DESC
+         LIMIT $1 OFFSET $2`,
+            [limit, offset]
         );
-        return toCamelCase(result.rows);
+
+        const countResult = await getPool().query(
+            "SELECT count(*)::int AS total FROM toque.business_registrations"
+        );
+
+        return {
+            data: toCamelCase(dataResult.rows),
+            total: countResult.rows[0].total,
+        };
     }
 
     async findById(id: string): Promise<BusinessRegistration | null> {
