@@ -1,6 +1,6 @@
 import { ChatResponse, Faq, FaqsResponse, TokenResponse } from "./chatbot.model.js";
 
-const EXTERNAL_BASE_URL = "https://fepcmac.temisperu.com";
+const EXTERNAL_BASE_URL = "https://100.52.168.9";
 const CREDENTIALS = {
     usuario: "integracion-RxMGy3cBFu8QAl1",
     passw: "u9vxqTmNHgw63o2mn3OasK",
@@ -78,7 +78,6 @@ export class ChatbotClient {
         const token = await this.getToken();
         return {
             "Content-Type": "application/json",
-            "Host": "fepcmac.temisperu.com",
             Authorization: `Bearer ${token}`,
         };
     }
