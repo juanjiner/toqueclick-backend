@@ -38,6 +38,7 @@ export class ChatbotClient {
         const token = await this.getToken();
         return {
             "Content-Type": "application/json",
+            "host": "https://toqueclick.com/",
             Authorization: `Bearer ${token}`,
         };
     }
