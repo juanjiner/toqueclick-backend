@@ -116,47 +116,48 @@ export class ChatbotClient {
     }
 
     async sendMessage(sesionId: string, body: string): Promise<ChatResponse> {
-        this.log("sendMessage", `POST ${EXTERNAL_BASE_URL}/api/asistente/chat/new-message`);
-        this.log("sendMessage", "Payload:", { sesionId, body });
+        // this.log("sendMessage", `POST ${EXTERNAL_BASE_URL}/api/asistente/chat/new-message`);
+        // this.log("sendMessage", "Payload:", { sesionId, body });
 
-        const payload = {
-            sesionId,
-            message: {
-                type: "text",
-                timestamp: Math.floor(Date.now() / 1000).toString(),
-                text: { body },
-            },
-        };
+        // const payload = {
+        //     sesionId,
+        //     message: {
+        //         type: "text",
+        //         timestamp: Math.floor(Date.now() / 1000).toString(),
+        //         text: { body },
+        //     },
+        // };
 
-        let res: Response;
-        try {
-            const headers = await this.authHeaders();
-            res = await fetch(
-                `${EXTERNAL_BASE_URL}/api/asistente/chat/new-message`,
-                { method: "POST", headers, body: JSON.stringify(payload) }
-            );
-        } catch (err) {
-            this.logError("sendMessage", "No se pudo conectar al endpoint de chat.", err);
-            throw err;
-        }
+        // let res: Response;
+        // try {
+        //     const headers = await this.authHeaders();
+        //     res = await fetch(
+        //         `${EXTERNAL_BASE_URL}/api/asistente/chat/new-message`,
+        //         { method: "POST", headers, body: JSON.stringify(payload) }
+        //     );
+        // } catch (err) {
+        //     this.logError("sendMessage", "No se pudo conectar al endpoint de chat.", err);
+        //     throw err;
+        // }
 
-        this.log("sendMessage", `Respuesta HTTP: ${res.status} ${res.statusText}`);
+        // this.log("sendMessage", `Respuesta HTTP: ${res.status} ${res.statusText}`);
 
-        if (!res.ok) {
-            const errorBody = await res.text().catch(() => "(no se pudo leer el body)");
-            this.logError("sendMessage", `Error al enviar mensaje. Body: ${errorBody}`);
-            throw new Error(`Error al enviar mensaje: ${res.status} ${res.statusText}`);
-        }
+        // if (!res.ok) {
+        //     const errorBody = await res.text().catch(() => "(no se pudo leer el body)");
+        //     this.logError("sendMessage", `Error al enviar mensaje. Body: ${errorBody}`);
+        //     throw new Error(`Error al enviar mensaje: ${res.status} ${res.statusText}`);
+        // }
 
         let result: ChatResponse;
-        try {
-            result = (await res.json()) as ChatResponse;
-        } catch (err) {
-            this.logError("sendMessage", "No se pudo parsear la respuesta JSON del chat.", err);
-            throw err;
-        }
+        result = {"sesionId": "Mensaje enviado y respuesta recibida.", "reply": "Respuesta del chat."};
+        // try {
+        //     result = (await res.json()) as ChatResponse;
+        // } catch (err) {
+        //     this.logError("sendMessage", "No se pudo parsear la respuesta JSON del chat.", err);
+        //     throw err;
+        // }
 
-        this.log("sendMessage", "Mensaje enviado y respuesta recibida.", result);
+        // this.log("sendMessage", "Mensaje enviado y respuesta recibida.", result);
         return result;
     }
 }
