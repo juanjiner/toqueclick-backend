@@ -1,6 +1,6 @@
 import { ChatResponse, Faq, FaqsResponse, TokenResponse } from "./chatbot.model.js";
 
-const EXTERNAL_BASE_URL = "http://100.52.168.9";
+const EXTERNAL_BASE_URL = "https://fepcmac.temisperu.com/";
 const CREDENTIALS = {
     usuario: "integracion-RxMGy3cBFu8QAl1",
     passw: "u9vxqTmNHgw63o2mn3OasK",
