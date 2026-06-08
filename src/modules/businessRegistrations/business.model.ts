@@ -28,15 +28,3 @@ export interface BusinessRegistration {
     termsAccepted: boolean;
     status?: string;
 }
-
-export interface ImportRow {
-    legal_name: string;
-    ruc: string;
-    category: string;
-    departament: string;
-    province: string;
-    district: string;
-    contact_name: string;
-    phone: string;
-    email: string;
-}

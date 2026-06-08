@@ -1,4 +1,4 @@
-import { BusinessRegistration, ImportRow } from "./business.model.js";
+import { BusinessRegistration } from "./business.model.js";
 import { BusinessRepository } from "./business.repository.js";
 
 export class BusinessService {
@@ -37,13 +37,5 @@ export class BusinessService {
         const existing = await this.repository.findById(id);
         if (!existing) return;
         await this.repository.delete(id);
-    }
-
-    previewImport(rows: ImportRow[]) {
-        return this.repository.previewImport(rows);
-    }
-
-    bulkInsert(rows: ImportRow[]) {
-        return this.repository.bulkInsert(rows);
     }
 }

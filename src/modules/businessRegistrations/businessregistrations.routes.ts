@@ -14,6 +14,5 @@ router.post("/", validate(businessSchema), asyncHandler(controller.create));
 router.put("/:id", validate(businessSchema), asyncHandler(controller.update));
 router.patch("/:id/status", validate(updateStatusSchema), asyncHandler(controller.updateStatus));
 router.delete("/:id", asyncHandler(controller.delete));
-router.post("/bulk-import", asyncHandler(controller.bulkImport));
 
 export default router;
