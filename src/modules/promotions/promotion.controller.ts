@@ -52,16 +52,12 @@ export class PromotionController {
 
     exportExcel = async (_req: Request, res: Response) => {
         const buffer = await this.service.exportExcel();
-        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        res.setHeader("Content-Disposition", 'attachment; filename="promociones.xlsx"');
-        res.send(buffer);
+        res.json(successResponse({ fileBase64: buffer.toString('base64') }, "Exportación exitosa"));
     };
 
     downloadTemplate = async (_req: Request, res: Response) => {
         const buffer = await this.service.generateTemplate();
-        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        res.setHeader("Content-Disposition", 'attachment; filename="plantilla_promociones.xlsx"');
-        res.send(buffer);
+        res.json(successResponse({ fileBase64: buffer.toString('base64') }, "Plantilla generada"));
     };
 
     importExcel = async (req: Request, res: Response) => {

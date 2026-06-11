@@ -51,16 +51,12 @@ export class BusinessesController {
 
     exportExcel = async (_req: Request, res: Response) => {
         const buffer = await this.service.exportExcel();
-        res.setHeader("Content-Disposition", "attachment; filename=comercios.xlsx");
-        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        res.send(buffer);
+        res.json(successResponse({ fileBase64: buffer.toString('base64') }, "Exportación exitosa"));
     };
 
     downloadTemplate = async (_req: Request, res: Response) => {
         const buffer = await this.service.generateTemplate();
-        res.setHeader("Content-Disposition", "attachment; filename=plantilla_comercios.xlsx");
-        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-        res.send(buffer);
+        res.json(successResponse({ fileBase64: buffer.toString('base64') }, "Plantilla generada"));
     };
 
     importExcel = async (req: Request, res: Response) => {
