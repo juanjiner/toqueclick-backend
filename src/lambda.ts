@@ -3,7 +3,15 @@ import app from "./app.js";
 import { loadSecrets } from "./config/secrets.js";
 import { logger } from "./utils/logger.js";
 
-const serverlessHandler = serverless(app);
+const serverlessHandler = serverless(app, {
+    binary: [
+        'multipart/form-data',
+        'application/octet-stream',
+        'image/*',
+        'audio/*',
+        'video/*'
+    ]
+});
 
 let initialized = false;
 

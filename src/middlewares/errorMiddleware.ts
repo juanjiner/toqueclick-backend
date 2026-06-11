@@ -13,9 +13,11 @@ export const errorMiddleware = (
     const status = err.status || 500;
 
     if (err.code === "LIMIT_FILE_SIZE") {
+        const isArticleRoute = req.path.includes('/articles');
+        const maxSize = isArticleRoute ? '10MB' : '5MB';
         return res.status(400).json({
             success: false,
-            message: "Máximo 5MB permitido"
+            message: `El archivo excede el tamaño máximo permitido de ${maxSize}.`
         });
     }
 

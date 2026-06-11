@@ -20,9 +20,9 @@ export class StorageService {
     }
 
     async getPresignedUrl(filename: string, contentType: string, fileSize: number, folder: string): Promise<{ uploadUrl: string; key: string }> {
-        const MAX_SIZE = 30 * 1024 * 1024; // 30 MB
+        const MAX_SIZE = 100 * 1024 * 1024; // 100 MB
         if (fileSize <= 0 || fileSize > MAX_SIZE) {
-            throw new Error(`Tamaño de archivo inválido. El límite máximo es 30 MB.`);
+            throw new Error(`Tamaño de archivo inválido. El límite máximo es 100 MB.`);
         }
 
         const uniqueFilename = `${Date.now()}-${filename.replace(/\s+/g, '_')}`;
@@ -66,7 +66,8 @@ export class StorageService {
             contentType = 'image/webp';
         }
 
-        const key = this.getKey(folder, filename);
+        const uniqueFilename = `${Date.now()}-${filename.replace(/\s+/g, '_')}`;
+        const key = this.getKey(folder, uniqueFilename);
 
         await s3.send(new PutObjectCommand({
             Bucket: storageConfig.bucket,

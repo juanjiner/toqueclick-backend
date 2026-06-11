@@ -18,17 +18,17 @@ const uploadFields = upload.fields([
 ]);
 
 router.get("/", asyncHandler(controller.getAll));
-router.post("/", uploadFields, validate(articleSchema), asyncHandler(controller.create));
+router.post("/", authenticate, uploadFields, validate(articleSchema), asyncHandler(controller.create));
 router.post("/presigned-url", authenticate, asyncHandler(controller.getPresignedUrl));
 // Comment routes (Static routes must go before /:id)
 router.get("/comments", asyncHandler(commentController.getAll));
-router.get("/comments/pending", asyncHandler(commentController.getPending));
-router.put("/comments/:commentId/status", asyncHandler(commentController.updateStatus));
+router.get("/comments/pending", authenticate, asyncHandler(commentController.getPending));
+router.put("/comments/:commentId/status", authenticate, asyncHandler(commentController.updateStatus));
 
 // Article parameterized routes
-router.put("/:id", uploadFields, validate(articleSchema), asyncHandler(controller.update));
+router.put("/:id", authenticate, uploadFields, validate(articleSchema), asyncHandler(controller.update));
 router.get("/:id", asyncHandler(controller.getById));
-router.delete("/:id", asyncHandler(controller.delete));
+router.delete("/:id", authenticate, asyncHandler(controller.delete));
 router.post("/:id/comments", asyncHandler(commentController.create));
 router.get("/:id/comments", asyncHandler(commentController.getByArticle));
 
