@@ -20,4 +20,9 @@ export class CategoryController {
         const faqCategories = await this.service.getFaqCategories();
         res.json(successResponse(faqCategories));
     };
+
+    getProductCategories = async (_req: Request, res: Response) => {
+        const productCategories = await this.service.getProductCategories();
+        res.json(successResponse(productCategories));
+    };
 }

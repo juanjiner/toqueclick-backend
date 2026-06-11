@@ -1,6 +1,6 @@
 import { getPool } from "../../config/database.js";
 import { toCamelCase } from "../../utils/camelCase.js";
-import { BusinessCategory, FaqCategory, BlogCategory } from "./category.model.js";
+import { BusinessCategory, FaqCategory, BlogCategory, ProductCategory } from "./category.model.js";
 
 export class CategoryRepository {
 
@@ -19,6 +19,12 @@ export class CategoryRepository {
     async findBlogCategories(): Promise<BlogCategory[]> {
         const result = await getPool().query(
             "SELECT id, blog_category FROM maestro.blog_categories ORDER BY blog_category");
+        return toCamelCase(result.rows);
+    }
+
+    async findProductCategories(): Promise<ProductCategory[]> {
+        const result = await getPool().query(
+            "SELECT id, product_category FROM maestro.product_categories ORDER BY product_category");
         return toCamelCase(result.rows);
     }
 }

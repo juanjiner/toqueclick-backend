@@ -57,5 +57,11 @@ export class BusinessController {
         await this.service.deleteBusiness(id);
         res.status(204).send();
     };
-    
+
+    exportExcel = async (_req: Request, res: Response) => {
+        const buffer = await this.service.exportExcel();
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader("Content-Disposition", 'attachment; filename="solicitudes_afiliacion.xlsx"');
+        res.send(buffer);
+    };
 }

@@ -7,8 +7,8 @@ export class ArticleCommentRepository {
         const result = await getPool().query(
             `
             INSERT INTO toque.blog_article_comments 
-            (article_id, author_name, author_email, content, status, device_id) 
-            VALUES ($1, $2, $3, $4, $5, $6)
+            (article_id, author_name, author_email, content, status, device_id, created_at) 
+            VALUES ($1, $2, $3, $4, $5, $6, timezone('America/Lima', now()))
             RETURNING *
             `,
             [
@@ -59,7 +59,7 @@ export class ArticleCommentRepository {
         const result = await getPool().query(
             `
             UPDATE toque.blog_article_comments
-            SET status = $1, updated_at = CURRENT_TIMESTAMP
+            SET status = $1, updated_at = timezone('America/Lima', now())
             WHERE id = $2
             RETURNING *
             `,

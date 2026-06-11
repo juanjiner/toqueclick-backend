@@ -22,12 +22,12 @@ export class ArticleRepository {
         const result = await getPool().query(
             `
             INSERT INTO toque.blog_articles 
-            (title, image_url, category_id, author, date, content, tags, published) 
-            VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+            (title, image_url, category_id, author, date, content, tags, published, audio_url, video_url) 
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
             RETURNING *
             `,
             [article.title, article.imageUrl, article.categoryId, article.author, article.date,
-            article.content, article.tags, article.published]
+            article.content, article.tags, article.published, article.audioUrl, article.videoUrl]
         );
 
         return toCamelCase(result.rows[0]);
@@ -46,12 +46,14 @@ export class ArticleRepository {
                 content=$6,
                 tags=$7,
                 published=$8,
+                audio_url=$9,
+                video_url=$10,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE id=$9
+            WHERE id=$11
             RETURNING *
             `,
             [article.title, article.imageUrl, article.categoryId, article.author, article.date,
-            article.content, article.tags, article.published, id]
+            article.content, article.tags, article.published, article.audioUrl, article.videoUrl, id]
         );
 
         return toCamelCase(result.rows[0] || null);

@@ -8,4 +8,6 @@ export interface Article {
     content: string;
     tags: string;
     published: boolean;
+    audioUrl?: string | null;
+    videoUrl?: string | null;
 }

@@ -18,15 +18,31 @@ export class ArticleController {
     };
 
     create = async (req: Request, res: Response) => {
-        if (!req.file) throw new AppError("Imagen requerida", 400);
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+        const imageFile = files?.image?.[0];
+        const audioFile = files?.audio?.[0];
+        const videoFile = files?.video?.[0];
 
-        const data = await this.service.createArticle(req.body, req.file);
+        const data = await this.service.createArticle(req.body, {
+            image: imageFile,
+            audio: audioFile,
+            video: videoFile
+        });
         res.status(201).json(successResponse(data));
     };
 
     update = async (req: Request, res: Response) => {
         const id = String(req.params.id);
-        const data = await this.service.updateArticle(id, req.body, req.file);
+        const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+        const imageFile = files?.image?.[0];
+        const audioFile = files?.audio?.[0];
+        const videoFile = files?.video?.[0];
+
+        const data = await this.service.updateArticle(id, req.body, {
+            image: imageFile,
+            audio: audioFile,
+            video: videoFile
+        });
 
         if (!data) throw new AppError("Artículo no encontrado", 404);
 

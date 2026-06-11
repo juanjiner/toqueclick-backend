@@ -11,6 +11,8 @@ export interface Promotion {
     expirationDate: Date;
     imageUrl: string;
     views?: number;
+    campaignId?: string;
+    productCategoryId?: string;
 }
 
 export interface PromoTypes {

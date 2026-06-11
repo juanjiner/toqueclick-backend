@@ -129,16 +129,194 @@ export class BusinessRepository {
     }
 
     async updateStatus(id: string, status: string): Promise<BusinessRegistration | null> {
-        const result = await getPool().query(
-            `
-            UPDATE toque.business_registrations
-            SET status = $1, updated_at = CURRENT_TIMESTAMP
-            WHERE id = $2
-            RETURNING *
-            `,
-            [status, id]
-        );
-        return toCamelCase(result.rows[0] || null);
+        const pool = getPool();
+        const client = await pool.connect();
+
+        try {
+            await client.query("BEGIN");
+
+            // 1. Obtener la solicitud actual
+            const regResult = await client.query(
+                "SELECT * FROM toque.business_registrations WHERE id = $1",
+                [id]
+            );
+            const registration = regResult.rows[0];
+            if (!registration) {
+                await client.query("ROLLBACK");
+                return null;
+            }
+
+            // 2. Si el nuevo estado es 'approved' o 'approved' (en inglés/español) y no se ha creado el comercio aún
+            let businessId = registration.business_id;
+            const targetStatus = status.toLowerCase();
+
+            if ((targetStatus === "approved" || targetStatus === "aprobado") && !businessId) {
+                // Generar descripción por defecto
+                const desc = registration.additional_comments || "Comercio afiliado desde el formulario de registro.";
+                
+                // Obtener el nombre del departamento para la dirección
+                const deptResult = await client.query(
+                    "SELECT departament FROM maestro.departament WHERE id = $1",
+                    [registration.departament_id]
+                );
+                const deptName = deptResult.rows[0]?.departament || "";
+                const address = `Dirección pendiente, ${deptName}`;
+
+                // Insertar el comercio en toque.businesses
+                const busResult = await client.query(
+                    `
+                    INSERT INTO toque.businesses 
+                    (business_name, city_id, category_id, description, address, phone, logo_url, status) 
+                    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                    RETURNING id
+                    `,
+                    [
+                        registration.trade_name,
+                        registration.departament_id,
+                        registration.category_id,
+                        desc,
+                        address,
+                        registration.phone,
+                        "static/business/local-fake-image-default.png",
+                        "APROBADO"
+                    ]
+                );
+                businessId = busResult.rows[0].id;
+
+                // Crear promociones por defecto de acuerdo a los beneficios elegidos
+                const promoTypesResult = await client.query("SELECT id, promo FROM maestro.promo_type");
+                const promoTypes = promoTypesResult.rows;
+
+                const getPromoTypeId = (name: string): string => {
+                    const match = promoTypes.find((t: any) => t.promo.toLowerCase().includes(name.toLowerCase()));
+                    return match ? match.id : (promoTypes[0]?.id || "");
+                };
+
+                // Obtener ID de tipo de compra Local
+                const purchaseTypeResult = await client.query("SELECT id FROM maestro.purchase_type WHERE purchase ILIKE 'Local' LIMIT 1");
+                const purchaseTypeId = purchaseTypeResult.rows[0]?.id || null;
+
+                // Obtener ID de una categoría de producto por defecto
+                const prodCatResult = await client.query("SELECT id FROM maestro.product_categories LIMIT 1");
+                const productCategoryId = prodCatResult.rows[0]?.id || null;
+
+                const expirationDate = new Date();
+                expirationDate.setDate(expirationDate.getDate() + 30); // 30 días de vigencia
+
+                // Insertar promociones según los beneficios seleccionados
+                if (registration.benefit_percentage_discounts) {
+                    await client.query(
+                        `
+                        INSERT INTO toque.promotions 
+                        (business_name_id, city_id, product_category_id, title, description, promo_price, original_price, promo_type_id, purchase_type_id, expiration_date, image_url)
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                        `,
+                        [
+                            businessId,
+                            registration.departament_id,
+                            productCategoryId,
+                            "Descuento Exclusivo",
+                            `Aprovecha un gran descuento en ${registration.trade_name} pagando con tu billetera TOQUE.`,
+                            0.00,
+                            0.00,
+                            getPromoTypeId("Descuento"),
+                            purchaseTypeId,
+                            expirationDate,
+                            "static/promotion/local-fake-image-default.png"
+                        ]
+                    );
+                }
+
+                if (registration.benefit_2x1_promotions) {
+                    await client.query(
+                        `
+                        INSERT INTO toque.promotions 
+                        (business_name_id, city_id, product_category_id, title, description, promo_price, original_price, promo_type_id, purchase_type_id, expiration_date, image_url)
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                        `,
+                        [
+                            businessId,
+                            registration.departament_id,
+                            productCategoryId,
+                            "Promoción 2x1",
+                            `Disfruta de la promoción 2x1 en productos seleccionados de ${registration.trade_name}.`,
+                            0.00,
+                            0.00,
+                            getPromoTypeId("2x1"),
+                            purchaseTypeId,
+                            expirationDate,
+                            "static/promotion/local-fake-image-default.png"
+                        ]
+                    );
+                }
+
+                if (registration.benefit_free_products) {
+                    await client.query(
+                        `
+                        INSERT INTO toque.promotions 
+                        (business_name_id, city_id, product_category_id, title, description, promo_price, original_price, promo_type_id, purchase_type_id, expiration_date, image_url)
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                        `,
+                        [
+                            businessId,
+                            registration.departament_id,
+                            productCategoryId,
+                            "Producto de Regalo",
+                            `Obtén un producto de regalo por consumos mínimos en ${registration.trade_name} usando TOQUE.`,
+                            0.00,
+                            0.00,
+                            getPromoTypeId("Descuento"),
+                            purchaseTypeId,
+                            expirationDate,
+                            "static/promotion/local-fake-image-default.png"
+                        ]
+                    );
+                }
+
+                if (registration.benefit_exclusive_offers) {
+                    await client.query(
+                        `
+                        INSERT INTO toque.promotions 
+                        (business_name_id, city_id, product_category_id, title, description, promo_price, original_price, promo_type_id, purchase_type_id, expiration_date, image_url)
+                        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+                        `,
+                        [
+                            businessId,
+                            registration.departament_id,
+                            productCategoryId,
+                            "Oferta Especial",
+                            `Accede a una oferta exclusiva en ${registration.trade_name} pagando con tu billetera digital.`,
+                            0.00,
+                            0.00,
+                            getPromoTypeId("Descuento"),
+                            purchaseTypeId,
+                            expirationDate,
+                            "static/promotion/local-fake-image-default.png"
+                        ]
+                    );
+                }
+            }
+
+            // 3. Actualizar el estado de la solicitud y asociar el business_id
+            const updateResult = await client.query(
+                `
+                UPDATE toque.business_registrations
+                SET status = $1, business_id = $2, updated_at = CURRENT_TIMESTAMP
+                WHERE id = $3
+                RETURNING *
+                `,
+                [status, businessId, id]
+            );
+
+            await client.query("COMMIT");
+            return toCamelCase(updateResult.rows[0] || null);
+
+        } catch (error) {
+            await client.query("ROLLBACK");
+            throw error;
+        } finally {
+            client.release();
+        }
     }
 
     async delete(id: string): Promise<void> {
@@ -146,6 +324,22 @@ export class BusinessRepository {
             "DELETE FROM toque.business_registrations WHERE id = $1",
             [id]
         );
+    }
+
+    async findAllWithNames(): Promise<any[]> {
+        const result = await getPool().query(`
+            SELECT r.*, c.business_category as category_name,
+                   d.departament as departament_name,
+                   p.province as province_name,
+                   dist.district as district_name
+            FROM toque.business_registrations r
+            LEFT JOIN maestro.business_categories c ON c.id = r.category_id
+            LEFT JOIN maestro.departament d ON d.id = r.departament_id
+            LEFT JOIN maestro.province p ON p.id = r.province_id
+            LEFT JOIN maestro.district dist ON dist.id = r.district_id
+            ORDER BY r.created_at DESC
+        `);
+        return toCamelCase(result.rows);
     }
 
 }

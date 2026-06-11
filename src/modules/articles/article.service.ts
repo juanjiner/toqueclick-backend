@@ -16,30 +16,88 @@ export class ArticleService {
         return this.repository.findById(id);
     }
 
-    async createArticle(data: Article, file: Express.Multer.File): Promise<Article> {
-        const imageUrl = await this.storage.uploadFile(file, this.folder);
-        return this.repository.create({ ...data, imageUrl });
+    async createArticle(
+        data: Article, 
+        files: { image?: Express.Multer.File; audio?: Express.Multer.File; video?: Express.Multer.File }
+    ): Promise<Article> {
+        let imageUrl = "";
+        if (files.image) {
+            imageUrl = await this.storage.uploadFile(files.image, this.folder);
+        }
+        
+        let audioUrl: string | null = null;
+        if (files.audio) {
+            audioUrl = await this.storage.uploadFile(files.audio, this.folder);
+        }
+        
+        let videoUrl: string | null = null;
+        if (files.video) {
+            videoUrl = await this.storage.uploadFile(files.video, this.folder);
+        }
+
+        return this.repository.create({ ...data, imageUrl, audioUrl, videoUrl });
     }
 
-    async updateArticle(id: string, data: Article, file?: Express.Multer.File): Promise<Article | null> {
+    async updateArticle(
+        id: string, 
+        data: Article, 
+        files: { image?: Express.Multer.File; audio?: Express.Multer.File; video?: Express.Multer.File }
+    ): Promise<Article | null> {
         const existing = await this.repository.findById(id);
         if (!existing) return null;
 
         let imageUrl = existing.imageUrl;
-
-        if (file) {
+        if (files.image) {
             await this.storage.deleteFile(existing.imageUrl);
-            imageUrl = await this.storage.uploadFile(file, this.folder);
+            imageUrl = await this.storage.uploadFile(files.image, this.folder);
         }
 
-        return this.repository.update(id, { ...data, imageUrl });
+        // Si se subió un nuevo audio
+        let audioUrl = existing.audioUrl;
+        if (files.audio) {
+            if (existing.audioUrl) {
+                await this.storage.deleteFile(existing.audioUrl);
+            }
+            audioUrl = await this.storage.uploadFile(files.audio, this.folder);
+        } else if (data.audioUrl === '' || data.audioUrl === null || data.audioUrl === 'null') {
+            // El usuario eliminó el audio explícitamente
+            if (existing.audioUrl) {
+                await this.storage.deleteFile(existing.audioUrl);
+            }
+            audioUrl = null;
+        }
+
+        // Si se subió un nuevo video
+        let videoUrl = existing.videoUrl;
+        if (files.video) {
+            if (existing.videoUrl) {
+                await this.storage.deleteFile(existing.videoUrl);
+            }
+            videoUrl = await this.storage.uploadFile(files.video, this.folder);
+        } else if (data.videoUrl === '' || data.videoUrl === null || data.videoUrl === 'null') {
+            // El usuario eliminó el video explícitamente
+            if (existing.videoUrl) {
+                await this.storage.deleteFile(existing.videoUrl);
+            }
+            videoUrl = null;
+        }
+
+        return this.repository.update(id, { ...data, imageUrl, audioUrl, videoUrl });
     }
 
     async deleteArticle(id: string) {
         const existing = await this.repository.findById(id);
 
-        if (existing?.imageUrl) {
-            await this.storage.deleteFile(existing.imageUrl);
+        if (existing) {
+            if (existing.imageUrl) {
+                await this.storage.deleteFile(existing.imageUrl);
+            }
+            if (existing.audioUrl) {
+                await this.storage.deleteFile(existing.audioUrl);
+            }
+            if (existing.videoUrl) {
+                await this.storage.deleteFile(existing.videoUrl);
+            }
         }
 
         await this.repository.delete(id);

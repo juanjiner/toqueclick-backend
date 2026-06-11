@@ -9,6 +9,17 @@ export class BusinessRepository {
         return toCamelCase(result.rows);
     }
 
+    async findAllWithNames(): Promise<any[]> {
+        const result = await getPool().query(`
+            SELECT b.*, d.departament as city_name, c.business_category as category_name
+            FROM toque.businesses b
+            LEFT JOIN maestro.departament d ON d.id = b.city_id
+            LEFT JOIN maestro.business_categories c ON c.id = b.category_id
+            ORDER BY b.id
+        `);
+        return toCamelCase(result.rows);
+    }
+
     async findById(id: string): Promise<Business | null> {
         const result = await getPool().query(
             "SELECT * FROM toque.businesses WHERE id=$1",
@@ -77,5 +88,21 @@ export class BusinessRepository {
 
     async delete(id: string): Promise<void> {
         await getPool().query("DELETE FROM toque.businesses WHERE id=$1", [id]);
+    }
+
+    async findCityByName(name: string): Promise<string | null> {
+        const result = await getPool().query(
+            "SELECT id FROM maestro.departament WHERE departament ILIKE $1",
+            [name.trim()]
+        );
+        return result.rows.length ? result.rows[0].id : null;
+    }
+
+    async findCategoryByName(name: string): Promise<string | null> {
+        const result = await getPool().query(
+            "SELECT id FROM maestro.business_categories WHERE business_category ILIKE $1",
+            [name.trim()]
+        );
+        return result.rows.length ? result.rows[0].id : null;
     }
 }

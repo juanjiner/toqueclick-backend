@@ -12,3 +12,8 @@ export interface FaqCategory {
     id: string;
     faqCategory: string;
 }
+
+export interface ProductCategory {
+    id: string;
+    productCategory: string;
+}

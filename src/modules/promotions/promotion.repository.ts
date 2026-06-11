@@ -23,13 +23,13 @@ export class PromotionRepository {
             `
             INSERT INTO toque.promotions 
             (business_name_id, city_id, title, description, promo_price, original_price,
-            promo_type_id, purchase_type_id, expiration_date, image_url) 
-            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+            promo_type_id, purchase_type_id, expiration_date, image_url, campaign_id, product_category_id) 
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
             RETURNING *
             `,
             [promotion.businessNameId, promotion.cityId, promotion.title, promotion.description,
             promotion.promoPrice, promotion.originalPrice, promotion.promoTypeId, promotion.purchaseTypeId,
-            promotion.expirationDate, promotion.imageUrl]
+            promotion.expirationDate, promotion.imageUrl, promotion.campaignId || null, promotion.productCategoryId || null]
         );
 
         return toCamelCase(result.rows[0]);
@@ -50,13 +50,15 @@ export class PromotionRepository {
                 purchase_type_id=$8,
                 expiration_date=$9,
                 image_url=$10,
+                campaign_id=$11,
+                product_category_id=$12,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE id=$11
+            WHERE id=$13
             RETURNING *
             `,
             [promotion.businessNameId, promotion.cityId, promotion.title, promotion.description,
             promotion.promoPrice, promotion.originalPrice, promotion.promoTypeId, promotion.purchaseTypeId,
-            promotion.expirationDate, promotion.imageUrl, id]
+            promotion.expirationDate, promotion.imageUrl, promotion.campaignId || null, promotion.productCategoryId || null, id]
         );
 
         return toCamelCase(result.rows[0] || null);
@@ -83,6 +85,71 @@ export class PromotionRepository {
         const result = await getPool().query(
             "SELECT id, purchase FROM maestro.purchase_type ORDER BY purchase");
         return result.rows;
+    }
+
+    async findAllWithNames(): Promise<any[]> {
+        const result = await getPool().query(`
+            SELECT p.*, b.business_name, d.departament as city_name,
+                   c.name as campaign_name, pc.product_category as category_name,
+                   pt.promo as promo_type_name, put.purchase as purchase_type_name
+            FROM toque.promotions p
+            LEFT JOIN toque.businesses b ON b.id = p.business_name_id
+            LEFT JOIN maestro.departament d ON d.id = p.city_id
+            LEFT JOIN toque.campaigns c ON c.id = p.campaign_id
+            LEFT JOIN maestro.product_categories pc ON pc.id = p.product_category_id
+            LEFT JOIN maestro.promo_type pt ON pt.id = p.promo_type_id
+            LEFT JOIN maestro.purchase_type put ON put.id = p.purchase_type_id
+            ORDER BY p.id
+        `);
+        return toCamelCase(result.rows);
+    }
+
+    async findBusinessByName(name: string): Promise<string | null> {
+        const result = await getPool().query(
+            "SELECT id FROM toque.businesses WHERE business_name ILIKE $1 LIMIT 1",
+            [name.trim()]
+        );
+        return result.rows.length ? result.rows[0].id : null;
+    }
+
+    async findCityByName(name: string): Promise<string | null> {
+        const result = await getPool().query(
+            "SELECT id FROM maestro.departament WHERE departament ILIKE $1 LIMIT 1",
+            [name.trim()]
+        );
+        return result.rows.length ? result.rows[0].id : null;
+    }
+
+    async findCampaignByName(name: string): Promise<string | null> {
+        const result = await getPool().query(
+            "SELECT id FROM toque.campaigns WHERE name ILIKE $1 LIMIT 1",
+            [name.trim()]
+        );
+        return result.rows.length ? result.rows[0].id : null;
+    }
+
+    async findProductCategoryByName(name: string): Promise<string | null> {
+        const result = await getPool().query(
+            "SELECT id FROM maestro.product_categories WHERE product_category ILIKE $1 LIMIT 1",
+            [name.trim()]
+        );
+        return result.rows.length ? result.rows[0].id : null;
+    }
+
+    async findPromoTypeByName(name: string): Promise<string | null> {
+        const result = await getPool().query(
+            "SELECT id FROM maestro.promo_type WHERE promo ILIKE $1 LIMIT 1",
+            [name.trim()]
+        );
+        return result.rows.length ? result.rows[0].id : null;
+    }
+
+    async findPurchaseTypeByName(name: string): Promise<string | null> {
+        const result = await getPool().query(
+            "SELECT id FROM maestro.purchase_type WHERE purchase ILIKE $1 LIMIT 1",
+            [name.trim()]
+        );
+        return result.rows.length ? result.rows[0].id : null;
     }
 
 }

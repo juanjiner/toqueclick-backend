@@ -48,4 +48,26 @@ export class BusinessesController {
         await this.service.deleteBusiness(id);
         res.status(204).send();
     };
+
+    exportExcel = async (_req: Request, res: Response) => {
+        const buffer = await this.service.exportExcel();
+        res.setHeader("Content-Disposition", "attachment; filename=comercios.xlsx");
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.send(buffer);
+    };
+
+    downloadTemplate = async (_req: Request, res: Response) => {
+        const buffer = await this.service.generateTemplate();
+        res.setHeader("Content-Disposition", "attachment; filename=plantilla_comercios.xlsx");
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.send(buffer);
+    };
+
+    importExcel = async (req: Request, res: Response) => {
+        if (!req.file) {
+            return res.status(400).json(successResponse(null, "No se proporcionó ningún archivo"));
+        }
+        const count = await this.service.importExcel(req.file);
+        res.json(successResponse({ count }, `Se importaron ${count} comercios exitosamente`));
+    };
 }

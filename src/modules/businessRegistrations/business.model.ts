@@ -27,4 +27,5 @@ export interface BusinessRegistration {
     // Step 4: Confirmation
     termsAccepted: boolean;
     status?: string;
+    businessId?: string;
 }

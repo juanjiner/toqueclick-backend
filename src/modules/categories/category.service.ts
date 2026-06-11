@@ -15,4 +15,8 @@ export class CategoryService {
     getFaqCategories() {
         return this.repository.findFaqCategories();
     }
+
+    getProductCategories() {
+        return this.repository.findProductCategories();
+    }
 }

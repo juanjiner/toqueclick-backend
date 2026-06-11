@@ -49,4 +49,24 @@ export class PromotionController {
         const purchaseTypes = await this.service.getPurchaseTypes();
         res.json(successResponse(purchaseTypes));
     };
+
+    exportExcel = async (_req: Request, res: Response) => {
+        const buffer = await this.service.exportExcel();
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader("Content-Disposition", 'attachment; filename="promociones.xlsx"');
+        res.send(buffer);
+    };
+
+    downloadTemplate = async (_req: Request, res: Response) => {
+        const buffer = await this.service.generateTemplate();
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        res.setHeader("Content-Disposition", 'attachment; filename="plantilla_promociones.xlsx"');
+        res.send(buffer);
+    };
+
+    importExcel = async (req: Request, res: Response) => {
+        if (!req.file) throw new AppError("Archivo Excel requerido", 400);
+        const count = await this.service.importExcel(req.file);
+        res.json(successResponse({ count }));
+    };
 }

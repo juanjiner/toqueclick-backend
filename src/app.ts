@@ -15,6 +15,7 @@ import businessregistrationsRoutes from "./modules/businessRegistrations/busines
 import dashboardRouter from "./modules/dashboard/dashboard.router.js";
 import subscriptionRoutes from "./modules/subscriptions/subscription.routes.js";
 import chatbotRoutes from "./modules/chatBot/chatbot.routes.js";
+import campaignRoutes from "./modules/campaigns/campaign.routes.js";
 
 const app = express();
 
@@ -37,7 +38,7 @@ app.use('/pages', pageRoutes);
 app.use("/dashboard", dashboardRouter);
 app.use("/subscriptions", subscriptionRoutes);
 app.use("/chatbot", chatbotRoutes);
-
+app.use("/campaigns", campaignRoutes);
 app.use(errorMiddleware);
 
 export default app;

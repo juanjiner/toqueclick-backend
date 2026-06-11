@@ -8,4 +8,6 @@ export const articleSchema = z.object({
     content: z.string(),
     tags: z.string().optional(),
     published: z.enum(['true', 'false']).transform((val) => val === 'true'),
+    audioUrl: z.string().optional().nullable(),
+    videoUrl: z.string().optional().nullable(),
 });
