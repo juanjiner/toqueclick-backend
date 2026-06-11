@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { storageConfig } from "../config/storage.js";
 import sharp from "sharp";
 import path from "path";
@@ -16,6 +17,28 @@ export class StorageService {
 
     private getKey(folder: string, filename: string): string {
         return `static/${folder}/${filename}`;
+    }
+
+    async getPresignedUrl(filename: string, contentType: string, fileSize: number, folder: string): Promise<{ uploadUrl: string; key: string }> {
+        const MAX_SIZE = 30 * 1024 * 1024; // 30 MB
+        if (fileSize <= 0 || fileSize > MAX_SIZE) {
+            throw new Error(`Tamaño de archivo inválido. El límite máximo es 30 MB.`);
+        }
+
+        const uniqueFilename = `${Date.now()}-${filename.replace(/\s+/g, '_')}`;
+        const key = this.getKey(folder, uniqueFilename);
+
+        const command = new PutObjectCommand({
+            Bucket: storageConfig.bucket,
+            Key: key,
+            ContentType: contentType,
+            ContentLength: fileSize,
+            CacheControl: "public, max-age=31536000, immutable"
+        });
+
+        const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 900 });
+
+        return { uploadUrl, key };
     }
 
     private async processImage(buffer: Buffer): Promise<Buffer> {

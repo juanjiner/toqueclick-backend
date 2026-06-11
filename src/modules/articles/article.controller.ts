@@ -54,4 +54,15 @@ export class ArticleController {
         await this.service.deleteArticle(id);
         res.status(204).send();
     };
+
+    getPresignedUrl = async (req: Request, res: Response) => {
+        const { filename, contentType, fileSize } = req.body;
+
+        if (!filename || !contentType || !fileSize) {
+            throw new AppError("filename, contentType y fileSize son requeridos", 400);
+        }
+
+        const data = await this.service.getPresignedUploadUrl(filename, contentType, Number(fileSize));
+        res.json(successResponse(data));
+    };
 }

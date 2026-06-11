@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import { validate } from "../../middlewares/validate.js";
+import { authenticate } from "../../middlewares/auth.middleware.js";
 import { ArticleController } from "./article.controller.js";
 import { articleSchema } from "./articleValidator.js";
 import { uploadBlogMediaFactory } from "../../middlewares/uploadFactory.js";
@@ -18,6 +19,7 @@ const uploadFields = upload.fields([
 
 router.get("/", asyncHandler(controller.getAll));
 router.post("/", uploadFields, validate(articleSchema), asyncHandler(controller.create));
+router.post("/presigned-url", authenticate, asyncHandler(controller.getPresignedUrl));
 // Comment routes (Static routes must go before /:id)
 router.get("/comments", asyncHandler(commentController.getAll));
 router.get("/comments/pending", asyncHandler(commentController.getPending));

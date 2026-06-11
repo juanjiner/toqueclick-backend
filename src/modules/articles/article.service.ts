@@ -16,21 +16,25 @@ export class ArticleService {
         return this.repository.findById(id);
     }
 
+    async getPresignedUploadUrl(filename: string, contentType: string, fileSize: number): Promise<{ uploadUrl: string; key: string }> {
+        return await this.storage.getPresignedUrl(filename, contentType, fileSize, this.folder);
+    }
+
     async createArticle(
         data: Article, 
         files: { image?: Express.Multer.File; audio?: Express.Multer.File; video?: Express.Multer.File }
     ): Promise<Article> {
-        let imageUrl = "";
+        let imageUrl = data.imageUrl || "";
         if (files.image) {
             imageUrl = await this.storage.uploadFile(files.image, this.folder);
         }
         
-        let audioUrl: string | null = null;
+        let audioUrl: string | null = data.audioUrl || null;
         if (files.audio) {
             audioUrl = await this.storage.uploadFile(files.audio, this.folder);
         }
         
-        let videoUrl: string | null = null;
+        let videoUrl: string | null = data.videoUrl || null;
         if (files.video) {
             videoUrl = await this.storage.uploadFile(files.video, this.folder);
         }
@@ -46,36 +50,32 @@ export class ArticleService {
         const existing = await this.repository.findById(id);
         if (!existing) return null;
 
-        let imageUrl = existing.imageUrl;
+        let imageUrl = data.imageUrl !== undefined ? data.imageUrl : existing.imageUrl;
         if (files.image) {
             await this.storage.deleteFile(existing.imageUrl);
             imageUrl = await this.storage.uploadFile(files.image, this.folder);
         }
 
-        // Si se subió un nuevo audio
-        let audioUrl = existing.audioUrl;
+        let audioUrl = data.audioUrl !== undefined ? data.audioUrl : existing.audioUrl;
         if (files.audio) {
             if (existing.audioUrl) {
                 await this.storage.deleteFile(existing.audioUrl);
             }
             audioUrl = await this.storage.uploadFile(files.audio, this.folder);
         } else if (data.audioUrl === '' || data.audioUrl === null || data.audioUrl === 'null') {
-            // El usuario eliminó el audio explícitamente
             if (existing.audioUrl) {
                 await this.storage.deleteFile(existing.audioUrl);
             }
             audioUrl = null;
         }
 
-        // Si se subió un nuevo video
-        let videoUrl = existing.videoUrl;
+        let videoUrl = data.videoUrl !== undefined ? data.videoUrl : existing.videoUrl;
         if (files.video) {
             if (existing.videoUrl) {
                 await this.storage.deleteFile(existing.videoUrl);
             }
             videoUrl = await this.storage.uploadFile(files.video, this.folder);
         } else if (data.videoUrl === '' || data.videoUrl === null || data.videoUrl === 'null') {
-            // El usuario eliminó el video explícitamente
             if (existing.videoUrl) {
                 await this.storage.deleteFile(existing.videoUrl);
             }
