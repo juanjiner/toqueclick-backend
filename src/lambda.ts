@@ -9,7 +9,9 @@ const serverlessHandler = serverless(app, {
         'application/octet-stream',
         'image/*',
         'audio/*',
-        'video/*'
+        'video/*',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-excel'
     ]
 });
 
