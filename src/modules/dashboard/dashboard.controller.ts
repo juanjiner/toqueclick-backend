@@ -11,3 +11,12 @@ export async function getDashboard(req: Request, res: Response) {
         res.status(500).json({ error: "Error al obtener el dashboard" });
     }
 }
+
+export async function getExecutiveDashboard(req: Request, res: Response) {
+    try {
+        const data = await service.getExecutiveDashboard();
+        res.json(data);
+    } catch (err) {
+        res.status(500).json({ error: "Error al obtener el dashboard ejecutivo" });
+    }
+}

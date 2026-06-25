@@ -13,4 +13,8 @@ export class DashboardService {
 
         return { stats, activity, topPromos, topCities };
     }
+
+    async getExecutiveDashboard() {
+        return this.repo.getExecutiveStats();
+    }
 }
