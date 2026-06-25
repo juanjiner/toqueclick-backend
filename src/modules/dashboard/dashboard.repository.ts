@@ -144,11 +144,10 @@ export class DashboardRepository {
 
         // 7. Query de Top Ciudades (Map)
         const topCitiesPromise = pool.query(`
-            SELECT d.departament AS city, COUNT(p.id) AS total
-            FROM toque.promotions p
-            JOIN maestro.departament d ON d.id = p.city_id
-            WHERE p.expiration_date > NOW()
-            GROUP BY d.departament
+            SELECT visitor_city AS city, COUNT(DISTINCT visitor_id) AS total
+            FROM toque.analytics_events
+            WHERE created_at >= DATE_TRUNC('month', NOW()) AND visitor_city IS NOT NULL
+            GROUP BY visitor_city
             ORDER BY total DESC
             LIMIT 5
         `);

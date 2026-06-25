@@ -8,6 +8,11 @@ export interface AnalyticsEvent {
     channel?: string;
     userAgent?: string;
     ipAddress?: string;
+    visitorCity?: string;
+    visitorRegion?: string;
+    visitorCountry?: string;
+    visitorLat?: number;
+    visitorLon?: number;
     createdAt?: Date;
 }
 
