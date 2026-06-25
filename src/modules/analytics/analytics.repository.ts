@@ -67,7 +67,7 @@ export class AnalyticsRepository {
                 visitor_lon AS lon, 
                 COUNT(*) AS visits
             FROM toque.analytics_events
-            WHERE created_at >= $1 AND created_at <= $2 
+            WHERE created_at >= $1 AND created_at < $2::timestamp + interval '1 day' 
               AND visitor_city IS NOT NULL 
               AND visitor_lat IS NOT NULL
             GROUP BY visitor_city, visitor_lat, visitor_lon
