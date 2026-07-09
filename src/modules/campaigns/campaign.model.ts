@@ -1,7 +1,8 @@
 export interface Campaign {
     id: string;
     name: string;
-    coverImageUrl: string | null;
+    bannerImageUrls: string[];
+    isActive: boolean;
     startDate: Date | null;
     expirationDate: Date | null;
     status: string;
@@ -11,7 +12,8 @@ export interface Campaign {
 
 export interface CreateCampaignDTO {
     name: string;
-    coverImageUrl?: string | null;
+    bannerImageUrls?: string[];
+    isActive?: boolean;
     startDate?: string | null;
     expirationDate?: string | null;
     status?: string;
@@ -19,7 +21,8 @@ export interface CreateCampaignDTO {
 
 export interface UpdateCampaignDTO {
     name?: string;
-    coverImageUrl?: string | null;
+    bannerImageUrls?: string[];
+    isActive?: boolean;
     startDate?: string | null;
     expirationDate?: string | null;
     status?: string;

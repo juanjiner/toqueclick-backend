@@ -4,10 +4,14 @@ import { Campaign, CreateCampaignDTO, UpdateCampaignDTO } from "./campaign.model
 
 export class CampaignRepository {
 
-    async findAll(): Promise<Campaign[]> {
-        const result = await getPool().query(
-            "SELECT * FROM toque.campaigns ORDER BY created_at DESC"
-        );
+    async findAll(activeOnly: boolean = false): Promise<Campaign[]> {
+        let query = "SELECT * FROM toque.campaigns";
+        if (activeOnly) {
+            query += " WHERE is_active = true";
+        }
+        query += " ORDER BY created_at DESC";
+
+        const result = await getPool().query(query);
         return toCamelCase(result.rows);
     }
 
@@ -22,9 +26,9 @@ export class CampaignRepository {
     async create(data: CreateCampaignDTO): Promise<Campaign> {
         const result = await getPool().query(
             `INSERT INTO toque.campaigns 
-            (name, cover_image_url, start_date, expiration_date, status) 
-            VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-            [data.name, data.coverImageUrl || null, data.startDate || null, data.expirationDate || null, data.status || 'ACTIVA']
+            (name, banner_image_urls, is_active, start_date, expiration_date, status) 
+            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+            [data.name, data.bannerImageUrls || [], data.isActive !== undefined ? data.isActive : true, data.startDate || null, data.expirationDate || null, data.status || 'ACTIVA']
         );
         return toCamelCase(result.rows[0]);
     }
@@ -38,9 +42,13 @@ export class CampaignRepository {
             updates.push(`name = $${index++}`);
             values.push(data.name);
         }
-        if (data.coverImageUrl !== undefined) {
-            updates.push(`cover_image_url = $${index++}`);
-            values.push(data.coverImageUrl);
+        if (data.bannerImageUrls !== undefined) {
+            updates.push(`banner_image_urls = $${index++}`);
+            values.push(data.bannerImageUrls);
+        }
+        if (data.isActive !== undefined) {
+            updates.push(`is_active = $${index++}`);
+            values.push(data.isActive);
         }
         if (data.startDate !== undefined) {
             updates.push(`start_date = $${index++}`);

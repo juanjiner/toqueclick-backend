@@ -23,13 +23,13 @@ export class PromotionRepository {
             `
             INSERT INTO toque.promotions 
             (business_name_id, city_id, title, description, promo_price, original_price,
-            promo_type_id, purchase_type_id, expiration_date, image_url, campaign_id, product_category_id) 
-            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+            promo_type_id, purchase_type_id, start_date, expiration_date, image_url, campaign_id, product_category_id, cta_text, cta_url) 
+            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
             RETURNING *
             `,
             [promotion.businessNameId, promotion.cityId, promotion.title, promotion.description,
             promotion.promoPrice, promotion.originalPrice, promotion.promoTypeId, promotion.purchaseTypeId,
-            promotion.expirationDate, promotion.imageUrl, promotion.campaignId || null, promotion.productCategoryId || null]
+            promotion.startDate, promotion.expirationDate, promotion.imageUrl, promotion.campaignId || null, promotion.productCategoryId || null, promotion.ctaText || null, promotion.ctaUrl || null]
         );
 
         return toCamelCase(result.rows[0]);
@@ -48,17 +48,20 @@ export class PromotionRepository {
                 original_price=$6,
                 promo_type_id=$7,
                 purchase_type_id=$8,
-                expiration_date=$9,
-                image_url=$10,
-                campaign_id=$11,
-                product_category_id=$12,
+                start_date=$9,
+                expiration_date=$10,
+                image_url=$11,
+                campaign_id=$12,
+                product_category_id=$13,
+                cta_text=$14,
+                cta_url=$15,
                 updated_at = CURRENT_TIMESTAMP
-            WHERE id=$13
+            WHERE id=$16
             RETURNING *
             `,
             [promotion.businessNameId, promotion.cityId, promotion.title, promotion.description,
             promotion.promoPrice, promotion.originalPrice, promotion.promoTypeId, promotion.purchaseTypeId,
-            promotion.expirationDate, promotion.imageUrl, promotion.campaignId || null, promotion.productCategoryId || null, id]
+            promotion.startDate, promotion.expirationDate, promotion.imageUrl, promotion.campaignId || null, promotion.productCategoryId || null, promotion.ctaText || null, promotion.ctaUrl || null, id]
         );
 
         return toCamelCase(result.rows[0] || null);

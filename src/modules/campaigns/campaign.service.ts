@@ -8,8 +8,8 @@ export class CampaignService {
     private repository = new CampaignRepository();
     private storage = new StorageService();
 
-    async getAllCampaigns() {
-        return this.repository.findAll();
+    async getAllCampaigns(activeOnly: boolean = false) {
+        return this.repository.findAll(activeOnly);
     }
 
     async getCampaignById(id: string) {
@@ -20,27 +20,35 @@ export class CampaignService {
         return campaign;
     }
 
-    async createCampaign(data: CreateCampaignDTO, file?: Express.Multer.File) {
-        let coverImageUrl = data.coverImageUrl || null;
-        if (file) {
-            coverImageUrl = await this.storage.uploadFile(file, "campaigns");
+    async createCampaign(data: CreateCampaignDTO, files?: Express.Multer.File[]) {
+        let bannerImageUrls: string[] = [];
+        if (files && files.length > 0) {
+            for (const file of files) {
+                const url = await this.storage.uploadFile(file, "campaigns");
+                bannerImageUrls.push(url);
+            }
         }
-        return this.repository.create({ ...data, coverImageUrl });
+        return this.repository.create({ ...data, bannerImageUrls });
     }
 
-    async updateCampaign(id: string, data: UpdateCampaignDTO, file?: Express.Multer.File) {
+    async updateCampaign(id: string, data: UpdateCampaignDTO, files?: Express.Multer.File[]) {
         const existing = await this.repository.findById(id);
         if (!existing) {
             throw new AppError("Campaña no encontrada", 404);
         }
-        let coverImageUrl = data.coverImageUrl !== undefined ? data.coverImageUrl : existing.coverImageUrl;
-        if (file) {
-            if (existing.coverImageUrl) {
-                await this.storage.deleteFile(existing.coverImageUrl);
+
+        // If data.bannerImageUrls is provided (e.g. they kept some old ones), we start with those
+        let bannerImageUrls: string[] = data.bannerImageUrls || existing.bannerImageUrls || [];
+
+        // Upload new files and append to the array
+        if (files && files.length > 0) {
+            for (const file of files) {
+                const url = await this.storage.uploadFile(file, "campaigns");
+                bannerImageUrls.push(url);
             }
-            coverImageUrl = await this.storage.uploadFile(file, "campaigns");
         }
-        const campaign = await this.repository.update(id, { ...data, coverImageUrl });
+
+        const campaign = await this.repository.update(id, { ...data, bannerImageUrls });
         if (!campaign) {
             throw new AppError("Campaña no encontrada", 404);
         }

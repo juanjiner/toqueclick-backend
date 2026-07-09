@@ -171,6 +171,7 @@ export class PromotionService {
                 originalPrice: parseFloat(row["Precio Original"] || "0") || 0,
                 promoTypeId: promoTypeId || "Descuento", // Se resolverá en repo o fallback
                 purchaseTypeId: purchaseTypeId || "Local",
+                startDate: new Date(),
                 expirationDate: expirationDate || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // +30 días
                 imageUrl: "static/promotion/local-fake-image-default.png", // Imagen por defecto
                 campaignId: campaignId,

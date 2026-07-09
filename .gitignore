@@ -35,3 +35,7 @@ Thumbs.db
 *.swo
 !.env.example
 
+
+# Bypass Local Storage
+public/
+src/services/local-storage.service.ts

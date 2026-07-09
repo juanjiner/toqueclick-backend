@@ -8,11 +8,14 @@ export interface Promotion {
     originalPrice: number;
     promoTypeId: string;
     purchaseTypeId: string;
+    startDate: Date;
     expirationDate: Date;
     imageUrl: string;
     views?: number;
     campaignId?: string;
     productCategoryId?: string;
+    ctaText?: string;
+    ctaUrl?: string;
 }
 
 export interface PromoTypes {

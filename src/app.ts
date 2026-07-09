@@ -1,4 +1,5 @@
 import express from "express";
+import path from "path";
 import departamentRoutes from "./modules/cities/city.routes.js";
 import { requestLogger } from "./middlewares/requestLogger.js";
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
@@ -23,6 +24,10 @@ const app = express();
 app.use(corsConfig);
 
 app.use(express.json());
+if (process.env.USE_LOCAL_STORAGE === 'true') {
+    app.use(express.static(path.join(process.cwd(), 'public')));
+}
+
 
 app.use(requestLogger);
 

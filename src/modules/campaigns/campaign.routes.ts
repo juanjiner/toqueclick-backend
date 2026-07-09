@@ -9,8 +9,8 @@ const upload = uploadFactory();
 
 router.get("/", asyncHandler(controller.getAll));
 router.get("/:id", asyncHandler(controller.getById));
-router.post("/", upload.single("image"), asyncHandler(controller.create));
-router.put("/:id", upload.single("image"), asyncHandler(controller.update));
+router.post("/", upload.array("images", 5), asyncHandler(controller.create));
+router.put("/:id", upload.array("images", 5), asyncHandler(controller.update));
 router.delete("/:id", asyncHandler(controller.delete));
 
 export default router;
