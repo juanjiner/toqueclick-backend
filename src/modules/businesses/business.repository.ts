@@ -5,7 +5,7 @@ import { Business } from "./business.model.js";
 export class BusinessRepository {
 
     async findAll(): Promise<Business[]> {
-        const result = await getPool().query("SELECT * FROM toque.businesses ORDER BY id");
+        const result = await getPool().query("SELECT * FROM toque.businesses ORDER BY created_at DESC");
         return toCamelCase(result.rows);
     }
 
@@ -15,7 +15,7 @@ export class BusinessRepository {
             FROM toque.businesses b
             LEFT JOIN maestro.departament d ON d.id = b.city_id
             LEFT JOIN maestro.business_categories c ON c.id = b.category_id
-            ORDER BY b.id
+            ORDER BY b.created_at DESC
         `);
         return toCamelCase(result.rows);
     }

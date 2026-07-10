@@ -1,7 +1,17 @@
+export interface CampaignBanner {
+    id?: string;
+    campaignId?: string;
+    businessId: string;
+    imageUrl: string;
+    title?: string;
+    ctaText?: string;
+    isActive?: boolean;
+}
+
 export interface Campaign {
     id: string;
     name: string;
-    bannerImageUrls: string[];
+    banners: CampaignBanner[];
     isActive: boolean;
     startDate: Date | null;
     expirationDate: Date | null;
@@ -12,7 +22,7 @@ export interface Campaign {
 
 export interface CreateCampaignDTO {
     name: string;
-    bannerImageUrls?: string[];
+    banners?: CampaignBanner[];
     isActive?: boolean;
     startDate?: string | null;
     expirationDate?: string | null;
@@ -21,7 +31,7 @@ export interface CreateCampaignDTO {
 
 export interface UpdateCampaignDTO {
     name?: string;
-    bannerImageUrls?: string[];
+    banners?: CampaignBanner[];
     isActive?: boolean;
     startDate?: string | null;
     expirationDate?: string | null;

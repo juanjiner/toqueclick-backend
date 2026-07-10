@@ -55,7 +55,7 @@ export class PromotionService {
 
     async exportExcel(): Promise<Buffer> {
         const promotions = await this.repository.findAllWithNames();
-        
+
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("Promociones");
 

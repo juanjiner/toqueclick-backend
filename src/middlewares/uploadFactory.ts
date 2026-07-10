@@ -1,10 +1,10 @@
 import multer from "multer";
 
 const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
-    const allowed = ["image/jpeg", "image/png"];
+    const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
     if (!allowed.includes(file.mimetype)) {
-        return cb(new Error("Solo imágenes JPG o PNG"));
+        return cb(new Error("Solo imágenes JPG, PNG, WEBP o GIF"));
     }
 
     cb(null, true);

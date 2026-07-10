@@ -21,14 +21,16 @@ export class CampaignService {
     }
 
     async createCampaign(data: CreateCampaignDTO, files?: Express.Multer.File[]) {
-        let bannerImageUrls: string[] = [];
-        if (files && files.length > 0) {
-            for (const file of files) {
-                const url = await this.storage.uploadFile(file, "campaigns");
-                bannerImageUrls.push(url);
+        const banners = data.banners || [];
+        let fileIndex = 0;
+
+        for (const banner of banners) {
+            if ((!banner.imageUrl || banner.imageUrl.trim() === '') && files && fileIndex < files.length) {
+                banner.imageUrl = await this.storage.uploadFile(files[fileIndex], "campaigns");
+                fileIndex++;
             }
         }
-        return this.repository.create({ ...data, bannerImageUrls });
+        return this.repository.create({ ...data, banners });
     }
 
     async updateCampaign(id: string, data: UpdateCampaignDTO, files?: Express.Multer.File[]) {
@@ -37,18 +39,17 @@ export class CampaignService {
             throw new AppError("Campaña no encontrada", 404);
         }
 
-        // If data.bannerImageUrls is provided (e.g. they kept some old ones), we start with those
-        let bannerImageUrls: string[] = data.bannerImageUrls || existing.bannerImageUrls || [];
+        const banners = data.banners || [];
+        let fileIndex = 0;
 
-        // Upload new files and append to the array
-        if (files && files.length > 0) {
-            for (const file of files) {
-                const url = await this.storage.uploadFile(file, "campaigns");
-                bannerImageUrls.push(url);
+        for (const banner of banners) {
+            if ((!banner.imageUrl || banner.imageUrl.trim() === '') && files && fileIndex < files.length) {
+                banner.imageUrl = await this.storage.uploadFile(files[fileIndex], "campaigns");
+                fileIndex++;
             }
         }
 
-        const campaign = await this.repository.update(id, { ...data, bannerImageUrls });
+        const campaign = await this.repository.update(id, { ...data, banners });
         if (!campaign) {
             throw new AppError("Campaña no encontrada", 404);
         }

@@ -19,9 +19,11 @@ export class CampaignController {
 
     create = async (req: Request, res: Response) => {
         const files = req.files as Express.Multer.File[] | undefined;
-        // Parse JSON if bannerImageUrls is sent as stringified JSON in FormData
-        if (typeof req.body.bannerImageUrls === 'string') {
-            try { req.body.bannerImageUrls = JSON.parse(req.body.bannerImageUrls); } catch (e) {}
+        if (typeof req.body.banners === 'string') {
+            try { req.body.banners = JSON.parse(req.body.banners); } catch (e) { req.body.banners = []; }
+        }
+        if (typeof req.body.isActive === 'string') {
+            req.body.isActive = req.body.isActive === 'true';
         }
         const campaign = await this.service.createCampaign(req.body, files);
         res.status(201).json(successResponse(campaign));
@@ -29,9 +31,11 @@ export class CampaignController {
 
     update = async (req: Request, res: Response) => {
         const files = req.files as Express.Multer.File[] | undefined;
-        // Parse JSON if bannerImageUrls is sent as stringified JSON in FormData
-        if (typeof req.body.bannerImageUrls === 'string') {
-            try { req.body.bannerImageUrls = JSON.parse(req.body.bannerImageUrls); } catch (e) {}
+        if (typeof req.body.banners === 'string') {
+            try { req.body.banners = JSON.parse(req.body.banners); } catch (e) { req.body.banners = []; }
+        }
+        if (typeof req.body.isActive === 'string') {
+            req.body.isActive = req.body.isActive === 'true';
         }
         const campaign = await this.service.updateCampaign(String(req.params.id), req.body, files);
         res.json(successResponse(campaign));

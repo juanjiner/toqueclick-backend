@@ -57,7 +57,7 @@ export class BusinessService {
 
     async exportExcel(): Promise<Buffer> {
         const businesses = await this.repository.findAllWithNames();
-        
+
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet("Comercios");
 

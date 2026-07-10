@@ -21,19 +21,19 @@ export class ArticleService {
     }
 
     async createArticle(
-        data: Article, 
+        data: Article,
         files: { image?: Express.Multer.File; audio?: Express.Multer.File; video?: Express.Multer.File }
     ): Promise<Article> {
         let imageUrl = data.imageUrl || "";
         if (files.image) {
             imageUrl = await this.storage.uploadFile(files.image, this.folder);
         }
-        
+
         let audioUrl: string | null = data.audioUrl || null;
         if (files.audio) {
             audioUrl = await this.storage.uploadFile(files.audio, this.folder);
         }
-        
+
         let videoUrl: string | null = data.videoUrl || null;
         if (files.video) {
             videoUrl = await this.storage.uploadFile(files.video, this.folder);
@@ -43,8 +43,8 @@ export class ArticleService {
     }
 
     async updateArticle(
-        id: string, 
-        data: Article, 
+        id: string,
+        data: Article,
         files: { image?: Express.Multer.File; audio?: Express.Multer.File; video?: Express.Multer.File }
     ): Promise<Article | null> {
         const existing = await this.repository.findById(id);
