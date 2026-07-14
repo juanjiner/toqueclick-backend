@@ -69,7 +69,7 @@ export interface UpsertSectionDTO {
     ctaLink?: string;
     ctaText2?: string;
     ctaLink2?: string;
-    imageUrl?: string;
+    imageUrl?: string | null;
     carouselEnabled?: boolean;
     regulatoryText?: string;
     sortOrder?: number;
