@@ -3,6 +3,7 @@ export interface Page {
     slug: string;
     name: string;
     description: string | null;
+    category?: string | null;
     published: boolean;
     updatedAt: Date;
     sections?: PageSection[];
@@ -49,6 +50,14 @@ export interface PageItemFeature {
 
 export interface UpdatePageDTO {
     published?: boolean;
+    category?: string;
+}
+
+export interface CreatePageDTO {
+    slug: string;
+    name: string;
+    description?: string;
+    category?: string;
 }
 
 export interface UpsertSectionDTO {
@@ -64,6 +73,7 @@ export interface UpsertSectionDTO {
     carouselEnabled?: boolean;
     regulatoryText?: string;
     sortOrder?: number;
+    settings?: any;
 }
 
 export interface CreateItemDTO {

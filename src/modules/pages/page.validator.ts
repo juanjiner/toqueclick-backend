@@ -2,6 +2,14 @@ import { z } from 'zod';
 
 export const updatePageSchema = z.object({
     published: z.boolean().nullable().optional(),
+    category: z.string().nullable().optional(),
+});
+
+export const createPageSchema = z.object({
+    slug: z.string().min(1),
+    name: z.string().min(1),
+    description: z.string().nullable().optional(),
+    category: z.string().nullable().optional(),
 });
 
 export const upsertSectionSchema = z.object({
@@ -11,8 +19,21 @@ export const upsertSectionSchema = z.object({
     description: z.string().nullable().optional(),
     ctaText: z.string().nullable().optional(),
     ctaLink: z.string().nullable().optional(),
+    ctaText2: z.string().nullable().optional(),
+    ctaLink2: z.string().nullable().optional(),
     imageUrl: z.string().nullable().optional(),
-    sortOrder: z.number().optional(),
+    carouselEnabled: z.coerce.boolean().optional(),
+    regulatoryText: z.string().nullable().optional(),
+    sortOrder: z.coerce.number().optional(),
+    settings: z.any().optional().transform(val => {
+        if (typeof val === 'string') {
+            try { val = JSON.parse(val); } catch { return undefined; }
+        }
+        if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+            return val;
+        }
+        return undefined;
+    }),
 });
 
 export const createItemSchema = z.object({
@@ -22,7 +43,9 @@ export const createItemSchema = z.object({
     imageUrl: z.string().nullable().optional(),
     ctaText: z.string().nullable().optional(),
     ctaLink: z.string().nullable().optional(),
-    sortOrder: z.number().nullable().optional(),
+    ctaText2: z.string().nullable().optional(),
+    ctaLink2: z.string().nullable().optional(),
+    sortOrder: z.coerce.number().nullable().optional(),
 });
 
 export const updateItemSchema = createItemSchema.partial();

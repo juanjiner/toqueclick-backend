@@ -15,6 +15,16 @@ export class PageController {
         res.json(successResponse(page));
     };
 
+    getByCategory = async (req: Request, res: Response) => {
+        const pages = await this.service.getByCategory(String(req.params.category));
+        res.json(successResponse(pages));
+    };
+
+    createPage = async (req: Request, res: Response) => {
+        const page = await this.service.createPage(req.body);
+        res.status(201).json(successResponse(page));
+    };
+
     updatePage = async (req: Request, res: Response) => {
         const page = await this.service.updatePage(String(req.params.slug), req.body);
         res.json(successResponse(page));
@@ -27,6 +37,16 @@ export class PageController {
             req.file
         );
         res.json(successResponse(section));
+    };
+
+    deleteSection = async (req: Request, res: Response) => {
+        await this.service.deleteSection(req.params.id);
+        res.json(successResponse(null, 'Sección eliminada exitosamente'));
+    };
+
+    reorderSections = async (req: Request, res: Response) => {
+        await this.service.reorderSections(req.body.sections);
+        res.json(successResponse(null, 'Secciones reordenadas exitosamente'));
     };
 
     createItem = async (req: Request, res: Response) => {

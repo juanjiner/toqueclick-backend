@@ -1,8 +1,8 @@
-import { StorageService } from '../../services/storage.service.js';
+import { StorageService } from "../../services/storage.service.js";
 import { AppError } from '../../utils/AppError.js';
 import {
     Page, PageSection, PageItem,
-    UpdatePageDTO, UpsertSectionDTO,
+    UpdatePageDTO, CreatePageDTO, UpsertSectionDTO,
     CreateItemDTO, UpdateItemDTO, ReorderItemsDTO,
     CreateFeatureDTO, PageItemFeature,
 } from './page.model.js';
@@ -23,6 +23,14 @@ export class PageService {
         return page;
     }
 
+    async getByCategory(category: string): Promise<Page[]> {
+        return this.repository.findByCategory(category);
+    }
+
+    async createPage(dto: CreatePageDTO): Promise<Page> {
+        return this.repository.createPage(dto);
+    }
+
     async updatePage(slug: string, dto: UpdatePageDTO): Promise<Page> {
         const page = await this.repository.updatePage(slug, dto);
         if (!page) throw new AppError('Página no encontrada', 404);
@@ -33,30 +41,45 @@ export class PageService {
         const page = await this.repository.findBySlug(slug);
         if (!page) throw new AppError('Página no encontrada', 404);
 
+        const existing = await this.repository.findBySlugWithSections(slug);
+        const section = existing?.sections?.find(s => s.sectionKey === dto.sectionKey);
+        
         let imageUrl = dto.imageUrl;
 
         if (file) {
-            // Si ya tenía imagen, borra la anterior
-            const existing = await this.repository.findBySlugWithSections(slug);
-            const section = existing?.sections?.find(s => s.sectionKey === dto.sectionKey);
             if (section?.imageUrl) {
                 await this.storage.deleteFile(section.imageUrl);
             }
             imageUrl = await this.storage.uploadFile(file, this.folder);
+        } else if (imageUrl === '' || imageUrl === null) {
+            if (section?.imageUrl) {
+                await this.storage.deleteFile(section.imageUrl);
+            }
+            imageUrl = null;
+        } else if (imageUrl === undefined) {
+            imageUrl = section?.imageUrl || null;
         }
 
         return this.repository.upsertSection(page.id, { ...dto, imageUrl });
     }
 
-    async createItem(slug: string, sectionKey: string, dto: CreateItemDTO, file?: Express.Multer.File): Promise<PageItem> {
+    async deleteSection(id: string): Promise<void> {
+        await this.repository.deleteSection(id);
+    }
+
+    async reorderSections(sections: { id: string; sortOrder: number }[]): Promise<void> {
+        await this.repository.reorderSections(sections);
+    }
+
+    async createItem(slug: string, sectionKey: string, dto: CreateItemDTO, imageFile?: Express.Multer.File): Promise<PageItem> {
         const page = await this.repository.findBySlugWithSections(slug);
         if (!page) throw new AppError('Página no encontrada', 404);
         const section = page.sections?.find(s => s.sectionKey === sectionKey);
         if (!section) throw new AppError('Sección no encontrada', 404);
 
         let imageUrl = dto.imageUrl;
-        if (file) {
-            imageUrl = await this.storage.uploadFile(file, this.folder);
+        if (imageFile) {
+            imageUrl = await this.storage.uploadFile(imageFile, this.folder);
         }
 
         return this.repository.createItem(section.id, { ...dto, imageUrl });
@@ -70,6 +93,9 @@ export class PageService {
         if (file) {
             if (existing.imageUrl) await this.storage.deleteFile(existing.imageUrl);
             imageUrl = await this.storage.uploadFile(file, this.folder);
+        } else if (dto.imageUrl === '' || dto.imageUrl === null) {
+            if (existing.imageUrl) await this.storage.deleteFile(existing.imageUrl);
+            imageUrl = null;
         }
 
         const item = await this.repository.updateItem(id, { ...dto, imageUrl });

@@ -5,6 +5,7 @@ import { authenticate } from '../../middlewares/auth.middleware.js';
 import { PageController } from './page.controller.js';
 import {
     updatePageSchema,
+    createPageSchema,
     upsertSectionSchema,
     createItemSchema,
     updateItemSchema,
@@ -18,14 +19,24 @@ const upload = uploadFactory();
 
 // Públicas — para el sitio web
 router.get('/', asyncHandler(controller.getAll));
+router.get('/category/:category', asyncHandler(controller.getByCategory));
 router.get('/:slug', asyncHandler(controller.getBySlug));
 
 // Protegidas — solo desde el CMS
+router.post('/',
+    authenticate,
+    validate(createPageSchema),
+    asyncHandler(controller.createPage)
+);
 router.patch('/:slug',
     authenticate,
     validate(updatePageSchema),
     asyncHandler(controller.updatePage)
 );
+
+// Sections endpoints
+router.delete('/sections/:id', authenticate, asyncHandler(controller.deleteSection));
+router.put('/sections/reorder', authenticate, asyncHandler(controller.reorderSections));
 
 router.put('/:slug/sections',
     authenticate,

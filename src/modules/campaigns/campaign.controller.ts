@@ -19,24 +19,12 @@ export class CampaignController {
 
     create = async (req: Request, res: Response) => {
         const files = req.files as Express.Multer.File[] | undefined;
-        if (typeof req.body.banners === 'string') {
-            try { req.body.banners = JSON.parse(req.body.banners); } catch (e) { req.body.banners = []; }
-        }
-        if (typeof req.body.isActive === 'string') {
-            req.body.isActive = req.body.isActive === 'true';
-        }
         const campaign = await this.service.createCampaign(req.body, files);
         res.status(201).json(successResponse(campaign));
     };
 
     update = async (req: Request, res: Response) => {
         const files = req.files as Express.Multer.File[] | undefined;
-        if (typeof req.body.banners === 'string') {
-            try { req.body.banners = JSON.parse(req.body.banners); } catch (e) { req.body.banners = []; }
-        }
-        if (typeof req.body.isActive === 'string') {
-            req.body.isActive = req.body.isActive === 'true';
-        }
         const campaign = await this.service.updateCampaign(String(req.params.id), req.body, files);
         res.json(successResponse(campaign));
     };

@@ -12,7 +12,7 @@ export class PageRepository {
 
     async findAll(): Promise<Page[]> {
         const result = await getPool().query(
-            `SELECT id, slug, name, description, published, updated_at, sort_order
+            `SELECT id, slug, name, description, category, published, updated_at, sort_order
              FROM toque.pages ORDER BY sort_order`
         );
         return toCamelCase(result.rows);
@@ -20,7 +20,7 @@ export class PageRepository {
 
     async findBySlug(slug: string): Promise<Page | null> {
         const result = await getPool().query(
-            `SELECT id, slug, name, description, published, updated_at
+            `SELECT id, slug, name, description, category, published, updated_at
              FROM toque.pages WHERE slug = $1`,
             [slug]
         );
@@ -29,7 +29,7 @@ export class PageRepository {
 
     async findBySlugWithSections(slug: string): Promise<Page | null> {
         const pageResult = await getPool().query(
-            `SELECT id, slug, name, description, published, updated_at
+            `SELECT id, slug, name, description, category, published, updated_at
              FROM toque.pages WHERE slug = $1`,
             [slug]
         );
@@ -69,12 +69,32 @@ export class PageRepository {
         const result = await getPool().query(
             `UPDATE toque.pages
              SET published  = COALESCE($1, published),
+                 category   = COALESCE($2, category),
                  updated_at = CURRENT_TIMESTAMP
-             WHERE slug = $2
+             WHERE slug = $3
              RETURNING *`,
-            [dto.published ?? null, slug]
+            [dto.published ?? null, dto.category ?? null, slug]
         );
         return toCamelCase(result.rows[0] || null);
+    }
+
+    async createPage(dto: any): Promise<Page> {
+        const result = await getPool().query(
+            `INSERT INTO toque.pages (slug, name, description, category)
+             VALUES ($1, $2, $3, $4)
+             RETURNING *`,
+            [dto.slug, dto.name, dto.description ?? null, dto.category ?? null]
+        );
+        return toCamelCase(result.rows[0]);
+    }
+
+    async findByCategory(category: string): Promise<Page[]> {
+        const result = await getPool().query(
+            `SELECT id, slug, name, description, category, published, updated_at, sort_order
+             FROM toque.pages WHERE category = $1 ORDER BY sort_order`,
+            [category]
+        );
+        return toCamelCase(result.rows);
     }
 
     async upsertSection(pageId: string, dto: UpsertSectionDTO): Promise<PageSection> {
@@ -82,8 +102,8 @@ export class PageRepository {
             `INSERT INTO toque.page_sections
       (page_id, section_key, title, subtitle, description,
        cta_text, cta_link, cta_text2, cta_link2, image_url,
-       carousel_enabled, regulatory_text, sort_order)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+       carousel_enabled, regulatory_text, sort_order, settings)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
      ON CONFLICT (page_id, section_key) DO UPDATE SET
         title            = EXCLUDED.title,
         subtitle         = EXCLUDED.subtitle,
@@ -96,6 +116,7 @@ export class PageRepository {
         carousel_enabled = EXCLUDED.carousel_enabled,
         regulatory_text  = EXCLUDED.regulatory_text,
         sort_order       = EXCLUDED.sort_order,
+        settings         = COALESCE(EXCLUDED.settings, toque.page_sections.settings),
         updated_at       = CURRENT_TIMESTAMP
      RETURNING *`,
             [
@@ -112,9 +133,35 @@ export class PageRepository {
                 dto.carouselEnabled ?? false,
                 dto.regulatoryText ?? null,
                 dto.sortOrder ?? 0,
+                dto.settings ?? '{}',
             ]
         );
         return toCamelCase(result.rows[0]);
+    }
+
+    async deleteSection(id: string): Promise<void> {
+        await getPool().query(
+            'DELETE FROM toque.page_sections WHERE id = $1', [id]
+        );
+    }
+
+    async reorderSections(sections: { id: string; sortOrder: number }[]): Promise<void> {
+        const client = await getPool().connect();
+        try {
+            await client.query('BEGIN');
+            for (const section of sections) {
+                await client.query(
+                    'UPDATE toque.page_sections SET sort_order = $1 WHERE id = $2',
+                    [section.sortOrder, section.id]
+                );
+            }
+            await client.query('COMMIT');
+        } catch (err) {
+            await client.query('ROLLBACK');
+            throw err;
+        } finally {
+            client.release();
+        }
     }
 
     async findItemById(id: string): Promise<PageItem | null> {
@@ -152,7 +199,7 @@ export class PageRepository {
                 icon        = COALESCE($1, icon),
                 title       = COALESCE($2, title),
                 description = COALESCE($3, description),
-                image_url   = COALESCE($4, image_url),
+                image_url   = $4,
                 cta_text    = COALESCE($5, cta_text),
                 cta_link    = COALESCE($6, cta_link),
                 cta_text2   = COALESCE($7, cta_text2),
