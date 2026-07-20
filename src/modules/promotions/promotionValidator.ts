@@ -11,6 +11,8 @@ export const promotionSchema = z.object({
     purchaseTypeId: z.string(),
     startDate: z.string(),
     expirationDate: z.string(),
+    campaignId: z.string().optional(),
+    productCategoryId: z.string().optional(),
     ctaText: z.string().optional(),
     ctaUrl: z.string().optional()
 });

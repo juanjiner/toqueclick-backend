@@ -18,6 +18,7 @@ import subscriptionRoutes from "./modules/subscriptions/subscription.routes.js";
 import chatbotRoutes from "./modules/chatBot/chatbot.routes.js";
 import campaignRoutes from "./modules/campaigns/campaign.routes.js";
 import analyticsRoutes from "./modules/analytics/analytics.routes.js";
+import popupRoutes from "./modules/popups/popup.routes.js";
 
 const app = express();
 
@@ -46,6 +47,7 @@ app.use("/subscriptions", subscriptionRoutes);
 app.use("/chatbot", chatbotRoutes);
 app.use("/campaigns", campaignRoutes);
 app.use("/analytics", analyticsRoutes);
+app.use("/popups", popupRoutes);
 
 app.use(errorMiddleware);
 
