@@ -40,6 +40,4 @@ Thumbs.db
 public/
 src/services/local-storage.service.ts
 
-# Archivos críticos (Regla estricta del equipo)
-src/config/cors.ts
-src/config/database.ts
+# (Regla removida: cors.ts y database.ts ahora se suben de forma segura)
