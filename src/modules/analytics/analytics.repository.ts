@@ -75,7 +75,7 @@ export class AnalyticsRepository {
             `,
             [from, to]
         );
-        return result.rows.map(row => toCamelCase(row));
+        return result.rows.map((row: any) => toCamelCase(row));
     }
 
     async getMarketingSettings(): Promise<MarketingSettings> {
