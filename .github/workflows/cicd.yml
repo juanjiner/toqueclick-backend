@@ -44,7 +44,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.PRD_AWS_ROLE }}
-          aws-region: ${{ secrets.PRD_AWS_REGION }}
+          aws-region: us-east-1
 
       # ── Backup env vars actuales ──
       - name: Backup current env vars
