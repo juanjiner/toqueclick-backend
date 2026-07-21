@@ -40,7 +40,7 @@ export class PageController {
     };
 
     deleteSection = async (req: Request, res: Response) => {
-        await this.service.deleteSection(req.params.id);
+        await this.service.deleteSection(String(req.params.id));
         res.json(successResponse(null, 'Sección eliminada exitosamente'));
     };
 
