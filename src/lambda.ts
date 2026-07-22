@@ -27,12 +27,7 @@ export const handler = async (event: any, context: any) => {
         } else {
             logger.info("Secrets ya inicializados (warm start)");
         }
-
-        logger.info("Evento recibido:", JSON.stringify(event));
-
         const response = await serverlessHandler(event, context);
-
-        logger.info("Respuesta generada:", JSON.stringify(response));
 
         return response;
     } catch (error) {
