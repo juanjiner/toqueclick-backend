@@ -7,10 +7,16 @@ export const requestLogger = (
     next: NextFunction
 ): void => {
 
+    const sanitizedBody = { ...req.body };
+    if (sanitizedBody.password) sanitizedBody.password = '***';
+    if (sanitizedBody.accessToken) sanitizedBody.accessToken = '***';
+    if (sanitizedBody.idToken) sanitizedBody.idToken = '***';
+    if (sanitizedBody.refreshToken) sanitizedBody.refreshToken = '***';
+
     logger.info({
         method: req.method,
         url: req.url,
-        body: req.body
+        body: sanitizedBody
     });
 
     next();
