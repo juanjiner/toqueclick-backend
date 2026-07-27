@@ -33,6 +33,10 @@ router.patch('/:slug',
     validate(updatePageSchema),
     asyncHandler(controller.updatePage)
 );
+router.delete('/:id',
+    authenticate,
+    asyncHandler(controller.deletePage)
+);
 
 // Sections endpoints
 router.delete('/sections/:id', authenticate, asyncHandler(controller.deleteSection));

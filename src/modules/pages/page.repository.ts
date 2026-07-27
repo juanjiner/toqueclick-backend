@@ -65,6 +65,19 @@ export class PageRepository {
         return page;
     }
 
+    async findById(id: string): Promise<Page | null> {
+        const result = await getPool().query(
+            `SELECT id, slug, name, description, category, published, updated_at
+             FROM toque.pages WHERE id = $1`,
+            [id]
+        );
+        return toCamelCase(result.rows[0] || null);
+    }
+
+    async deletePage(id: string): Promise<void> {
+        await getPool().query('DELETE FROM toque.pages WHERE id = $1', [id]);
+    }
+
     async updatePage(slug: string, dto: UpdatePageDTO): Promise<Page | null> {
         const result = await getPool().query(
             `UPDATE toque.pages
@@ -162,6 +175,20 @@ export class PageRepository {
         } finally {
             client.release();
         }
+    }
+
+    async findSectionById(id: string): Promise<PageSection | null> {
+        const result = await getPool().query(
+            'SELECT * FROM toque.page_sections WHERE id = $1', [id]
+        );
+        return toCamelCase(result.rows[0] || null);
+    }
+
+    async findItemsBySectionId(sectionId: string): Promise<PageItem[]> {
+        const result = await getPool().query(
+            'SELECT * FROM toque.page_items WHERE section_id = $1', [sectionId]
+        );
+        return toCamelCase(result.rows);
     }
 
     async findItemById(id: string): Promise<PageItem | null> {

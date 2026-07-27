@@ -30,6 +30,11 @@ export class PageController {
         res.json(successResponse(page));
     };
 
+    deletePage = async (req: Request, res: Response) => {
+        await this.service.deletePage(String(req.params.id));
+        res.status(204).send();
+    };
+
     upsertSection = async (req: Request, res: Response) => {
         const section = await this.service.upsertSection(
             String(req.params.slug),
