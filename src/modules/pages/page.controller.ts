@@ -7,16 +7,19 @@ export class PageController {
 
     getAll = async (req: Request, res: Response) => {
         const pages = await this.service.getAll();
+        res.set('Cache-Control', 'public, max-age=60');
         res.json(successResponse(pages));
     };
 
     getBySlug = async (req: Request, res: Response) => {
         const page = await this.service.getBySlug(String(req.params.slug));
+        res.set('Cache-Control', 'public, max-age=300');
         res.json(successResponse(page));
     };
 
     getByCategory = async (req: Request, res: Response) => {
         const pages = await this.service.getByCategory(String(req.params.category));
+        res.set('Cache-Control', 'public, max-age=120');
         res.json(successResponse(pages));
     };
 

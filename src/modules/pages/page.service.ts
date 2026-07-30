@@ -54,7 +54,7 @@ export class PageService {
                 }
             }
         }
-        await this.repository.deletePage(id);
+        await this.repository.deletePageCascade(id);
     }
 
     async upsertSection(slug: string, dto: UpsertSectionDTO, file?: Express.Multer.File): Promise<PageSection> {
@@ -96,7 +96,7 @@ export class PageService {
                 }
             }
         }
-        await this.repository.deleteSection(id);
+        await this.repository.deleteSectionCascade(id);
     }
 
     async reorderSections(sections: { id: string; sortOrder: number }[]): Promise<void> {
@@ -140,7 +140,7 @@ export class PageService {
         if (existing?.imageUrl) {
             await this.storage.deleteFile(existing.imageUrl);
         }
-        await this.repository.deleteItem(id);
+        await this.repository.deleteItemCascade(id);
     }
 
     reorderItems(dto: ReorderItemsDTO): Promise<void> {
@@ -148,10 +148,14 @@ export class PageService {
     }
 
     async createFeature(itemId: string, dto: CreateFeatureDTO): Promise<PageItemFeature> {
+        const item = await this.repository.findItemById(itemId);
+        if (!item) throw new AppError('Item no encontrado', 404);
         return this.repository.createFeature(itemId, dto);
     }
 
     async deleteFeature(id: string): Promise<void> {
-        return this.repository.deleteFeature(id);
+        const feature = await this.repository.findFeatureById(id);
+        if (!feature) throw new AppError('Feature no encontrada', 404);
+        await this.repository.deleteFeature(id);
     }
 }

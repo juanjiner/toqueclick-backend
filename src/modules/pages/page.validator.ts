@@ -56,3 +56,8 @@ export const reorderItemsSchema = z.object({
         sortOrder: z.number(),
     })),
 });
+
+export const createFeatureSchema = z.object({
+    text: z.string().min(1, 'El texto es requerido').max(2000),
+    sortOrder: z.coerce.number().optional(),
+});
