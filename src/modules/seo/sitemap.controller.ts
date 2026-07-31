@@ -8,7 +8,7 @@ export class SitemapController {
         try {
             const baseUrl = req.protocol + '://' + req.get('host');
             // Hardcode to the expected frontend base URL if you prefer, or use env variable
-            const frontendUrl = process.env.FRONTEND_URL || 'https://toque.com';
+            const frontendUrl = process.env.FRONTEND_URL || 'https://toqueclick.com';
             
             const xml = await this.sitemapService.generateSitemap(frontendUrl);
             

@@ -13,7 +13,6 @@ export class PageController {
 
     getBySlug = async (req: Request, res: Response) => {
         const page = await this.service.getBySlug(String(req.params.slug));
-        res.set('Cache-Control', 'public, max-age=300');
         res.json(successResponse(page));
     };
 

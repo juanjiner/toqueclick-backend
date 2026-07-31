@@ -6,7 +6,10 @@ export const updatePageSchema = z.object({
 });
 
 export const createPageSchema = z.object({
-    slug: z.string().min(1),
+    slug: z.string().min(1).max(100).regex(
+        /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+        'Slug solo puede contener minúsculas, números y guiones'
+    ),
     name: z.string().min(1),
     description: z.string().nullable().optional(),
     category: z.string().nullable().optional(),

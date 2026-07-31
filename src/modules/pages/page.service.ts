@@ -80,6 +80,10 @@ export class PageService {
             imageUrl = section?.imageUrl || null;
         }
 
+        if (dto.sortOrder === undefined && section) {
+            dto.sortOrder = section.sortOrder;
+        }
+
         return this.repository.upsertSection(page.id, { ...dto, imageUrl });
     }
 

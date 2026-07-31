@@ -45,3 +45,6 @@ CREATE TABLE toque.popups (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- nueva migracion para analiticas
+ALTER TABLE toque.analytics_events
+ADD COLUMN business_id UUID REFERENCES toque.businesses(id) NULL;
