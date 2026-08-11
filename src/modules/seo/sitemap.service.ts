@@ -15,6 +15,16 @@ export class SitemapService {
         );
         const articles = articlesResult.rows;
 
+        const promosResult = await pool.query(
+            `SELECT id, updated_at FROM toque.promotions WHERE expiration_date >= NOW()`
+        );
+        const promos = promosResult.rows;
+
+        const campaignsResult = await pool.query(
+            `SELECT id, updated_at FROM toque.campaigns WHERE status = 'ACTIVA'`
+        );
+        const campaigns = campaignsResult.rows;
+
         const today = new Date().toISOString().split('T')[0];
 
         let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
@@ -30,6 +40,16 @@ export class SitemapService {
         for (const article of articles) {
             const lastMod = article.updated_at ? new Date(article.updated_at).toISOString().split('T')[0] : today;
             xml += this.buildUrlEntry(`${baseUrl}/blog/${article.id}`, lastMod, 'monthly', '0.7');
+        }
+
+        for (const promo of promos) {
+            const lastMod = promo.updated_at ? new Date(promo.updated_at).toISOString().split('T')[0] : today;
+            xml += this.buildUrlEntry(`${baseUrl}/promos#${promo.id}`, lastMod, 'weekly', '0.8');
+        }
+
+        for (const campaign of campaigns) {
+            const lastMod = campaign.updated_at ? new Date(campaign.updated_at).toISOString().split('T')[0] : today;
+            xml += this.buildUrlEntry(`${baseUrl}/campanas#${campaign.id}`, lastMod, 'weekly', '0.8');
         }
 
         xml += `</urlset>`;

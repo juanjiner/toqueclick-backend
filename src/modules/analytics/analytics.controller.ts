@@ -36,4 +36,12 @@ export class AnalyticsController {
         const result = await this.service.getGeoHeatmap(from, to);
         res.json(successResponse(result));
     };
+
+    getBehavioralData = async (req: Request, res: Response) => {
+        const from = (req.query.from as string) || new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString().split('T')[0];
+        const to = (req.query.to as string) || new Date().toISOString().split('T')[0];
+
+        const result = await this.service.getBehavioralData(from, to);
+        res.json(successResponse(result));
+    };
 }

@@ -28,6 +28,10 @@ export class PageService {
     }
 
     async createPage(dto: CreatePageDTO): Promise<Page> {
+        const existing = await this.repository.findBySlug(dto.slug);
+        if (existing) {
+            throw new AppError('El slug ingresado ya está en uso por otra página', 400);
+        }
         return this.repository.createPage(dto);
     }
 
