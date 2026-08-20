@@ -53,6 +53,8 @@ export interface PageItemFeature {
 export interface UpdatePageDTO {
     published?: boolean;
     category?: string;
+    name?: string;
+    description?: string;
 }
 
 export interface CreatePageDTO {

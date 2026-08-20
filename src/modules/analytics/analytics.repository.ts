@@ -305,4 +305,165 @@ export class AnalyticsRepository {
         );
         return result.rows.map((row: any) => toCamelCase(row));
     }
+
+    async getLeadsTrend(from: string, to: string): Promise<any[]> {
+        const result = await getPool().query(
+            `
+            SELECT TO_CHAR(created_at, 'YYYY-MM-DD') AS "date",
+                   COUNT(*) AS "leads"
+            FROM toque.leads
+            WHERE created_at >= $1 AND created_at < $2::timestamp + interval '1 day'
+            GROUP BY TO_CHAR(created_at, 'YYYY-MM-DD')
+            ORDER BY "date" ASC
+            `,
+            [from, to]
+        );
+        return result.rows.map((row: any) => toCamelCase(row));
+    }
+
+    async getLandingPerformance(from: string, to: string): Promise<any[]> {
+        const result = await getPool().query(
+            `
+            SELECT 
+                p.name AS "landingName",
+                p.slug AS "landingSlug",
+                COUNT(DISTINCT ae.id) AS views,
+                (SELECT COUNT(*) FROM toque.leads ld WHERE ld.page_id = p.id AND ld.created_at >= $1 AND ld.created_at < $2::timestamp + interval '1 day') AS leads
+            FROM toque.pages p
+            LEFT JOIN toque.analytics_events ae ON ae.page_path = '/l/' || p.slug AND ae.event_type = 'pageview' AND ae.created_at >= $1 AND ae.created_at < $2::timestamp + interval '1 day'
+            WHERE p.published = true
+            GROUP BY p.id, p.name, p.slug
+            ORDER BY leads DESC, views DESC
+            LIMIT 15
+            `,
+            [from, to]
+        );
+        return result.rows.map((row: any) => ({
+            ...toCamelCase(row),
+            views: parseInt(row.views) || 0,
+            leads: parseInt(row.leads) || 0
+        }));
+    }
+
+    async getLeadChannels(from: string, to: string): Promise<any[]> {
+        const result = await getPool().query(
+            `
+            SELECT COALESCE(channel, 'Direct') AS channel, COUNT(*) AS leads
+            FROM toque.analytics_events
+            WHERE event_type = 'lead_form_submit' 
+              AND created_at >= $1 AND created_at < $2::timestamp + interval '1 day'
+            GROUP BY COALESCE(channel, 'Direct')
+            ORDER BY leads DESC
+            `,
+            [from, to]
+        );
+        return result.rows.map((row: any) => ({ channel: row.channel, leads: parseInt(row.leads) || 0 }));
+    }
+
+    async getLandingBounceRate(from: string, to: string): Promise<any[]> {
+        const result = await getPool().query(
+            `
+            WITH session_events AS (
+                SELECT session_id, page_path, COUNT(*) AS event_count
+                FROM toque.analytics_events
+                WHERE created_at >= $1 AND created_at < $2::timestamp + interval '1 day'
+                  AND page_path LIKE '/l/%'
+                GROUP BY session_id, page_path
+            )
+            SELECT page_path AS "pagePath",
+                   COUNT(CASE WHEN event_count = 1 THEN 1 END)::float / COUNT(*) * 100 AS bounce_rate
+            FROM session_events
+            GROUP BY page_path
+            HAVING COUNT(*) > 3
+            ORDER BY bounce_rate DESC
+            LIMIT 10
+            `,
+            [from, to]
+        );
+        return result.rows.map((row: any) => ({
+            pagePath: row.pagePath,
+            bounceRate: parseFloat(row.bounce_rate) || 0
+        }));
+    }
+
+    async getCampaignMetrics(from: string, to: string): Promise<any[]> {
+        const result = await getPool().query(
+            `
+            SELECT 
+                ae.event_metadata->>'campaignId' AS "campaignId",
+                c.name AS "campaignName",
+                COUNT(CASE WHEN ae.event_type = 'campaign_view' THEN 1 END) AS views,
+                COUNT(CASE WHEN ae.event_type = 'cta_click' THEN 1 END) AS clicks
+            FROM toque.analytics_events ae
+            LEFT JOIN toque.campaigns c ON c.id::text = ae.event_metadata->>'campaignId'
+            WHERE ae.created_at >= $1 AND ae.created_at < $2::timestamp + interval '1 day'
+              AND ae.event_metadata->>'campaignId' IS NOT NULL
+              AND ae.event_type IN ('campaign_view', 'cta_click')
+            GROUP BY ae.event_metadata->>'campaignId', c.name
+            `,
+            [from, to]
+        );
+        return result.rows.map((row: any) => toCamelCase(row));
+    }
+
+    async getCampaignBusinessClicks(from: string, to: string): Promise<any[]> {
+        const result = await getPool().query(
+            `
+            SELECT 
+                c.name AS "campaignName",
+                b.business_name AS "businessName",
+                COUNT(*) AS clicks
+            FROM toque.analytics_events ae
+            JOIN toque.campaigns c ON c.id::text = ae.event_metadata->>'campaignId'
+            JOIN toque.businesses b ON b.id = ae.business_id
+            WHERE ae.created_at >= $1 AND ae.created_at < $2::timestamp + interval '1 day'
+              AND ae.event_metadata->>'campaignId' IS NOT NULL
+              AND ae.event_type = 'cta_click'
+              AND ae.business_id IS NOT NULL
+            GROUP BY c.name, b.business_name
+            ORDER BY clicks DESC
+            `,
+            [from, to]
+        );
+        return result.rows.map((row: any) => toCamelCase(row));
+    }
+
+    async getCampaignsTrend(from: string, to: string): Promise<any[]> {
+        const result = await getPool().query(
+            `
+            SELECT TO_CHAR(created_at, 'YYYY-MM-DD') AS "date",
+                   COUNT(CASE WHEN event_type = 'campaign_view' THEN 1 END) AS views,
+                   COUNT(CASE WHEN event_type = 'cta_click' THEN 1 END) AS clicks
+            FROM toque.analytics_events
+            WHERE created_at >= $1 AND created_at < $2::timestamp + interval '1 day'
+              AND event_metadata->>'campaignId' IS NOT NULL
+              AND event_type IN ('campaign_view', 'cta_click')
+            GROUP BY TO_CHAR(created_at, 'YYYY-MM-DD')
+            ORDER BY "date" ASC
+            `,
+            [from, to]
+        );
+        return result.rows.map((row: any) => toCamelCase(row));
+    }
+
+    async getCampaignRegions(from: string, to: string): Promise<any[]> {
+        const result = await getPool().query(
+            `
+            SELECT c.name AS "campaignName",
+                   ae.visitor_region AS "region",
+                   COUNT(*) AS clicks
+            FROM toque.analytics_events ae
+            JOIN toque.campaigns c ON c.id::text = ae.event_metadata->>'campaignId'
+            WHERE ae.created_at >= $1 AND ae.created_at < $2::timestamp + interval '1 day'
+              AND ae.event_metadata->>'campaignId' IS NOT NULL
+              AND ae.event_type = 'cta_click'
+              AND ae.visitor_region IS NOT NULL AND ae.visitor_region != ''
+            GROUP BY c.name, ae.visitor_region
+            ORDER BY clicks DESC
+            LIMIT 30
+            `,
+            [from, to]
+        );
+        return result.rows.map((row: any) => toCamelCase(row));
+    }
 }

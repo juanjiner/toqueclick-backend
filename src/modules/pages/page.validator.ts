@@ -3,6 +3,8 @@ import { z } from 'zod';
 export const updatePageSchema = z.object({
     published: z.boolean().nullable().optional(),
     category: z.string().nullable().optional(),
+    name: z.string().min(1).optional(),
+    description: z.string().nullable().optional(),
 });
 
 export const createPageSchema = z.object({

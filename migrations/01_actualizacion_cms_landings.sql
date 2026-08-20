@@ -51,3 +51,10 @@ ALTER TABLE toque.analytics_events
 ADD COLUMN business_id UUID REFERENCES toque.businesses(id) NULL;
 ALTER TABLE toque.analytics_events
 ADD COLUMN event_metadata JSONB NULL;
+CREATE TABLE IF NOT EXISTS toque.leads (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    page_id UUID NOT NULL,
+    form_data JSONB NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);

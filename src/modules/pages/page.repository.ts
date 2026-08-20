@@ -110,10 +110,12 @@ export class PageRepository {
             `UPDATE toque.pages
              SET published  = COALESCE($1, published),
                  category   = COALESCE($2, category),
+                 name       = COALESCE($3, name),
+                 description= COALESCE($4, description),
                  updated_at = CURRENT_TIMESTAMP
-             WHERE slug = $3
+             WHERE slug = $5
              RETURNING *`,
-            [dto.published ?? null, dto.category ?? null, slug]
+            [dto.published ?? null, dto.category ?? null, dto.name ?? null, dto.description ?? null, slug]
         );
         return toCamelCase(result.rows[0] || null);
     }
