@@ -28,37 +28,64 @@ export class PageRepository {
     }
 
     async findBySlugWithSections(slug: string): Promise<Page | null> {
+        // 1) Página
         const pageResult = await getPool().query(
             `SELECT id, slug, name, description, category, published, updated_at
              FROM toque.pages WHERE slug = $1`,
             [slug]
         );
         if (!pageResult.rows[0]) return null;
-
         const page: Page = toCamelCase(pageResult.rows[0]);
 
+        // 2) Todas las secciones de la página
         const sectionsResult = await getPool().query(
             `SELECT * FROM toque.page_sections
              WHERE page_id = $1 ORDER BY sort_order ASC`,
             [page.id]
         );
         const sections: PageSection[] = toCamelCase(sectionsResult.rows);
+        if (sections.length === 0) { page.sections = []; return page; }
+
+        const sectionIds = sections.map(s => s.id);
+
+        // 3) Todos los items de todas las secciones (1 sola query)
+        const itemsResult = await getPool().query(
+            `SELECT * FROM toque.page_items
+             WHERE section_id = ANY($1) ORDER BY sort_order ASC`,
+            [sectionIds]
+        );
+        const allItems: PageItem[] = toCamelCase(itemsResult.rows);
+
+        // 4) Todas las features de todos los items (1 sola query)
+        let allFeatures: PageItemFeature[] = [];
+        if (allItems.length > 0) {
+            const itemIds = allItems.map(i => i.id);
+            const featuresResult = await getPool().query(
+                `SELECT * FROM toque.page_item_features
+                 WHERE item_id = ANY($1) ORDER BY sort_order ASC`,
+                [itemIds]
+            );
+            allFeatures = toCamelCase(featuresResult.rows);
+        }
+
+        // 5) Nesting en memoria: features → items → sections
+        const featuresByItem = new Map<string, PageItemFeature[]>();
+        for (const f of allFeatures) {
+            const list = featuresByItem.get(f.itemId) ?? [];
+            list.push(f);
+            featuresByItem.set(f.itemId, list);
+        }
+
+        const itemsBySection = new Map<string, PageItem[]>();
+        for (const item of allItems) {
+            item.features = featuresByItem.get(item.id) ?? [];
+            const list = itemsBySection.get(item.sectionId) ?? [];
+            list.push(item);
+            itemsBySection.set(item.sectionId, list);
+        }
 
         for (const section of sections) {
-            const itemsResult = await getPool().query(
-                `SELECT * FROM toque.page_items
-                 WHERE section_id = $1 ORDER BY sort_order ASC`,
-                [section.id]
-            );
-            section.items = toCamelCase(itemsResult.rows);
-            for (const item of section.items ?? []) {
-                const featuresResult = await getPool().query(
-                    `SELECT * FROM toque.page_item_features
-             WHERE item_id = $1 ORDER BY sort_order ASC`,
-                    [item.id]
-                );
-                item.features = toCamelCase(featuresResult.rows);
-            }
+            section.items = itemsBySection.get(section.id) ?? [];
         }
 
         page.sections = sections;
@@ -83,10 +110,12 @@ export class PageRepository {
             `UPDATE toque.pages
              SET published  = COALESCE($1, published),
                  category   = COALESCE($2, category),
+                 name       = COALESCE($3, name),
+                 description= COALESCE($4, description),
                  updated_at = CURRENT_TIMESTAMP
-             WHERE slug = $3
+             WHERE slug = $5
              RETURNING *`,
-            [dto.published ?? null, dto.category ?? null, slug]
+            [dto.published ?? null, dto.category ?? null, dto.name ?? null, dto.description ?? null, slug]
         );
         return toCamelCase(result.rows[0] || null);
     }
@@ -287,6 +316,78 @@ export class PageRepository {
         await getPool().query(
             'DELETE FROM toque.page_item_features WHERE id = $1', [id]
         );
+    }
+
+    async findFeatureById(id: string): Promise<PageItemFeature | null> {
+        const result = await getPool().query(
+            'SELECT * FROM toque.page_item_features WHERE id = $1', [id]
+        );
+        return toCamelCase(result.rows[0] || null);
+    }
+
+    async deletePageCascade(id: string): Promise<void> {
+        const client = await getPool().connect();
+        try {
+            await client.query('BEGIN');
+            await client.query(
+                `DELETE FROM toque.page_item_features
+                 WHERE item_id IN (
+                   SELECT i.id FROM toque.page_items i
+                   JOIN toque.page_sections s ON i.section_id = s.id
+                   WHERE s.page_id = $1
+                 )`, [id]
+            );
+            await client.query(
+                `DELETE FROM toque.page_items
+                 WHERE section_id IN (
+                   SELECT id FROM toque.page_sections WHERE page_id = $1
+                 )`, [id]
+            );
+            await client.query('DELETE FROM toque.page_sections WHERE page_id = $1', [id]);
+            await client.query('DELETE FROM toque.pages WHERE id = $1', [id]);
+            await client.query('COMMIT');
+        } catch (err) {
+            await client.query('ROLLBACK');
+            throw err;
+        } finally {
+            client.release();
+        }
+    }
+
+    async deleteSectionCascade(id: string): Promise<void> {
+        const client = await getPool().connect();
+        try {
+            await client.query('BEGIN');
+            await client.query(
+                `DELETE FROM toque.page_item_features
+                 WHERE item_id IN (
+                   SELECT id FROM toque.page_items WHERE section_id = $1
+                 )`, [id]
+            );
+            await client.query('DELETE FROM toque.page_items WHERE section_id = $1', [id]);
+            await client.query('DELETE FROM toque.page_sections WHERE id = $1', [id]);
+            await client.query('COMMIT');
+        } catch (err) {
+            await client.query('ROLLBACK');
+            throw err;
+        } finally {
+            client.release();
+        }
+    }
+
+    async deleteItemCascade(id: string): Promise<void> {
+        const client = await getPool().connect();
+        try {
+            await client.query('BEGIN');
+            await client.query('DELETE FROM toque.page_item_features WHERE item_id = $1', [id]);
+            await client.query('DELETE FROM toque.page_items WHERE id = $1', [id]);
+            await client.query('COMMIT');
+        } catch (err) {
+            await client.query('ROLLBACK');
+            throw err;
+        } finally {
+            client.release();
+        }
     }
 
     async reorderFeatures(items: { id: string; sortOrder: number }[]): Promise<void> {

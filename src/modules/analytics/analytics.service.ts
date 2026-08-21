@@ -84,4 +84,34 @@ export class AnalyticsService {
     async updateMarketingSettings(settings: MarketingSettings): Promise<MarketingSettings> {
         return this.repository.updateMarketingSettings(settings);
     }
+
+    async getBehavioralData(from: string, to: string) {
+        const [summary, topPages, avgTimeByPage, bounceRateByPage, trafficByCategory, trafficByRegion, trafficTrend, funnel, scrollDepth, ctaClicks, leadsTrend, landingPerformance, leadChannels, landingBounceRate, campaignPerformance, campaignBusinessClicks, campaignsTrend, campaignRegions] =
+            await Promise.all([
+                this.repository.getBehavioralSummary(from, to),
+                this.repository.getTopPages(from, to),
+                this.repository.getAvgTimeByPage(from, to),
+                this.repository.getBounceRateByPage(from, to),
+                this.repository.getTrafficByCategory(from, to),
+                this.repository.getTrafficByRegion(from, to),
+                this.repository.getTrafficTrend(from, to),
+                this.repository.getFunnelData(from, to),
+                this.repository.getScrollDepthByPage(from, to),
+                this.repository.getCtaClicks(from, to),
+                this.repository.getLeadsTrend(from, to),
+                this.repository.getLandingPerformance(from, to),
+                this.repository.getLeadChannels(from, to),
+                this.repository.getLandingBounceRate(from, to),
+                this.repository.getCampaignMetrics(from, to),
+                this.repository.getCampaignBusinessClicks(from, to),
+                this.repository.getCampaignsTrend(from, to),
+                this.repository.getCampaignRegions(from, to)
+            ]);
+
+        return { summary, topPages, avgTimeByPage, bounceRateByPage, trafficByCategory, trafficByRegion, trafficTrend, funnel, scrollDepth, ctaClicks, leadsTrend, landingPerformance, leadChannels, landingBounceRate, campaignPerformance, campaignBusinessClicks, campaignsTrend, campaignRegions };
+    }
+
+    async getCampaignPerformance(from: string, to: string) {
+        return this.repository.getCampaignMetrics(from, to);
+    }
 }

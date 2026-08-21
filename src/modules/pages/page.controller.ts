@@ -7,6 +7,7 @@ export class PageController {
 
     getAll = async (req: Request, res: Response) => {
         const pages = await this.service.getAll();
+        res.set('Cache-Control', 'public, max-age=60');
         res.json(successResponse(pages));
     };
 
@@ -17,6 +18,7 @@ export class PageController {
 
     getByCategory = async (req: Request, res: Response) => {
         const pages = await this.service.getByCategory(String(req.params.category));
+        res.set('Cache-Control', 'public, max-age=120');
         res.json(successResponse(pages));
     };
 

@@ -9,5 +9,7 @@ router.post("/track", asyncHandler(controller.track));
 router.get("/marketing-settings", asyncHandler(controller.getMarketingSettings));
 router.put("/marketing-settings", asyncHandler(controller.updateMarketingSettings));
 router.get("/geo-heatmap", asyncHandler(controller.getGeoHeatmap));
+router.get("/behavioral", asyncHandler(controller.getBehavioralData));
+router.get("/campaign-performance", asyncHandler(controller.getCampaignPerformance));
 
 export default router;

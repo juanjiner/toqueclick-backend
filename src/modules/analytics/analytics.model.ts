@@ -2,7 +2,7 @@ export interface AnalyticsEvent {
     id?: string;
     visitorId: string;
     sessionId: string;
-    eventType: 'pageview' | 'whatsapp_click' | 'phone_click' | 'lead_form_submit';
+    eventType: 'pageview' | 'whatsapp_click' | 'phone_click' | 'lead_form_submit' | 'scroll_depth' | 'cta_click';
     pagePath: string;
     referrer?: string;
     channel?: string;
@@ -13,6 +13,8 @@ export interface AnalyticsEvent {
     visitorCountry?: string;
     visitorLat?: number;
     visitorLon?: number;
+    businessId?: string;
+    eventMetadata?: any;
     createdAt?: Date;
 }
 

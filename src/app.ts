@@ -19,6 +19,8 @@ import chatbotRoutes from "./modules/chatBot/chatbot.routes.js";
 import campaignRoutes from "./modules/campaigns/campaign.routes.js";
 import analyticsRoutes from "./modules/analytics/analytics.routes.js";
 import popupRoutes from "./modules/popups/popup.routes.js";
+import seoRoutes from "./modules/seo/sitemap.routes.js";
+import leadRoutes from "./modules/leads/lead.routes.js";
 
 const app = express();
 
@@ -48,6 +50,8 @@ app.use("/chatbot", chatbotRoutes);
 app.use("/campaigns", campaignRoutes);
 app.use("/analytics", analyticsRoutes);
 app.use("/popups", popupRoutes);
+app.use("/seo", seoRoutes);
+app.use("/leads", leadRoutes);
 
 app.use(errorMiddleware);
 

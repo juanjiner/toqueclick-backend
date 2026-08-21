@@ -37,6 +37,8 @@ export interface PageItem {
     imageUrl: string | null;
     ctaText: string | null;
     ctaLink: string | null;
+    ctaText2: string | null;
+    ctaLink2: string | null;
     sortOrder: number;
     features?: PageItemFeature[];
 }
@@ -51,6 +53,8 @@ export interface PageItemFeature {
 export interface UpdatePageDTO {
     published?: boolean;
     category?: string;
+    name?: string;
+    description?: string;
 }
 
 export interface CreatePageDTO {

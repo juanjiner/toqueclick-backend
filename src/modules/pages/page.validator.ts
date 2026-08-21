@@ -3,10 +3,15 @@ import { z } from 'zod';
 export const updatePageSchema = z.object({
     published: z.boolean().nullable().optional(),
     category: z.string().nullable().optional(),
+    name: z.string().min(1).optional(),
+    description: z.string().nullable().optional(),
 });
 
 export const createPageSchema = z.object({
-    slug: z.string().min(1),
+    slug: z.string().min(1).max(100).regex(
+        /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+        'Slug solo puede contener minúsculas, números y guiones'
+    ),
     name: z.string().min(1),
     description: z.string().nullable().optional(),
     category: z.string().nullable().optional(),
@@ -55,4 +60,9 @@ export const reorderItemsSchema = z.object({
         id: z.string(),
         sortOrder: z.number(),
     })),
+});
+
+export const createFeatureSchema = z.object({
+    text: z.string().min(1, 'El texto es requerido').max(2000),
+    sortOrder: z.coerce.number().optional(),
 });
