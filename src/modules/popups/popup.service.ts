@@ -19,25 +19,23 @@ export class PopupService {
     async getActivePopupsForPage(pagePath: string): Promise<Popup[]> {
         const activePopups = await this.repository.findActivePopups();
         
-        // Filtrar en memoria por reglas de visualización (targetPages)
         return activePopups.filter(popup => {
             const rules = popup.displayRules;
             if (!rules || !rules.targetPages || rules.targetPages.length === 0) {
-                // Si no hay targetPages, asumimos que es global
                 return true;
             }
             
-            // Si el array incluye '*', es global
             if (rules.targetPages.includes('*')) {
                 return true;
             }
 
-            // Validar ruta exacta o inicio (puedes ajustar esta lógica según necesites)
             return rules.targetPages.some(target => {
                 if (target === pagePath) return true;
-                // Si hay comodines en las rutas (ej: /noticias/*)
-                if (target.endsWith('/*') && pagePath.startsWith(target.replace('/*', ''))) {
-                    return true;
+                if (target.endsWith('/*')) {
+                    const basePath = target.replace('/*', '');
+                    if (pagePath === basePath || pagePath.startsWith(basePath + '/')) {
+                        return true;
+                    }
                 }
                 return false;
             });

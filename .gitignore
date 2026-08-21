@@ -28,6 +28,9 @@ build/
 .DS_Store
 Thumbs.db
 
+# Graphify
+graphify-out
+
 # IDEs y editores
 .vscode/
 .idea/

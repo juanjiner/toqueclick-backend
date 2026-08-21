@@ -37,6 +37,26 @@ export class PageService {
         return page;
     }
 
+    async deletePage(id: string): Promise<void> {
+        const page = await this.repository.findById(id);
+        if (!page) throw new AppError('Página no encontrada', 404);
+        
+        const fullPage = await this.repository.findBySlugWithSections(page.slug);
+        if (fullPage && fullPage.sections) {
+            for (const section of fullPage.sections) {
+                if (section.imageUrl) {
+                    await this.storage.deleteFile(section.imageUrl);
+                }
+                for (const item of section.items || []) {
+                    if (item.imageUrl) {
+                        await this.storage.deleteFile(item.imageUrl);
+                    }
+                }
+            }
+        }
+        await this.repository.deletePage(id);
+    }
+
     async upsertSection(slug: string, dto: UpsertSectionDTO, file?: Express.Multer.File): Promise<PageSection> {
         const page = await this.repository.findBySlug(slug);
         if (!page) throw new AppError('Página no encontrada', 404);
@@ -64,6 +84,18 @@ export class PageService {
     }
 
     async deleteSection(id: string): Promise<void> {
+        const section = await this.repository.findSectionById(id);
+        if (section) {
+            if (section.imageUrl) {
+                await this.storage.deleteFile(section.imageUrl);
+            }
+            const items = await this.repository.findItemsBySectionId(id);
+            for (const item of items) {
+                if (item.imageUrl) {
+                    await this.storage.deleteFile(item.imageUrl);
+                }
+            }
+        }
         await this.repository.deleteSection(id);
     }
 
@@ -103,8 +135,12 @@ export class PageService {
         return item;
     }
 
-    deleteItem(id: string): Promise<void> {
-        return this.repository.deleteItem(id);
+    async deleteItem(id: string): Promise<void> {
+        const existing = await this.repository.findItemById(id);
+        if (existing?.imageUrl) {
+            await this.storage.deleteFile(existing.imageUrl);
+        }
+        await this.repository.deleteItem(id);
     }
 
     reorderItems(dto: ReorderItemsDTO): Promise<void> {
