@@ -7,8 +7,7 @@ export const corsConfig = cors({
     "https://toquefacil.net",
     "https://toquepay.com.pe",
     "https://toqueapp.pe",
-    "https://tuute.pe",
-    "https://admin.tuute.pe"
+    "https://tuute.pe"
   ],
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
   credentials: true,
