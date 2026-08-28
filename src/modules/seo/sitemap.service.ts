@@ -11,7 +11,7 @@ export class SitemapService {
         const pages = pagesResult.rows;
 
         const articlesResult = await pool.query(
-            `SELECT id, updated_at FROM toque.blog_articles WHERE published = true`
+            `SELECT id, slug, updated_at FROM toque.blog_articles WHERE published = true`
         );
         const articles = articlesResult.rows;
 
@@ -39,7 +39,8 @@ export class SitemapService {
 
         for (const article of articles) {
             const lastMod = article.updated_at ? new Date(article.updated_at).toISOString().split('T')[0] : today;
-            xml += this.buildUrlEntry(`${baseUrl}/blog/${article.id}`, lastMod, 'monthly', '0.7');
+            const identifier = article.slug || article.id;
+            xml += this.buildUrlEntry(`${baseUrl}/blog/${identifier}`, lastMod, 'monthly', '0.7');
         }
 
         for (const promo of promos) {

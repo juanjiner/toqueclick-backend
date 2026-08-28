@@ -17,11 +17,15 @@ export class LeadService {
         return this.repository.create(dto);
     }
 
-    async getLeadsByPage(pageId: string) {
-        return this.repository.findAllByPage(pageId);
+    async getLeadsByPage(pageId: string, status?: string) {
+        return this.repository.findAllByPage(pageId, status);
     }
 
-    async getAllLeads() {
-        return this.repository.findAll();
+    async getAllLeads(status?: string) {
+        return this.repository.findAll(status);
+    }
+
+    async updateLeadStatus(id: string, status: string) {
+        return this.repository.updateStatus(id, status);
     }
 }

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const articleSchema = z.object({
+    slug: z.string().optional().nullable(),
     title: z.string(),
     categoryId: z.string(),
     author: z.string(),

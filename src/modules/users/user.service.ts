@@ -17,7 +17,8 @@ export class UserService {
     private repository = new UserRepository();
 
     // Auth
-    login(dto: LoginDTO): Promise<LoginResult> {
+    async login(dto: LoginDTO): Promise<LoginResult> {
+
         return this.repository.cognitoLogin(dto);
     }
 
@@ -50,7 +51,8 @@ export class UserService {
         return this.repository.findAll();
     }
 
-    getMe(sub: string): Promise<UserDB | null> {
+    async getMe(sub: string): Promise<UserDB | null> {
+
         return this.repository.findBySub(sub);
     }
 

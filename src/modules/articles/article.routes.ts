@@ -27,6 +27,7 @@ router.put("/comments/:commentId/status", authenticate, asyncHandler(commentCont
 
 // Article parameterized routes
 router.put("/:id", authenticate, uploadFields, validate(articleSchema), asyncHandler(controller.update));
+router.get("/slug/:slug", asyncHandler(controller.getBySlug));
 router.get("/:id", asyncHandler(controller.getById));
 router.delete("/:id", authenticate, asyncHandler(controller.delete));
 router.post("/:id/comments", asyncHandler(commentController.create));
