@@ -17,6 +17,12 @@ export class ArticleController {
         res.json(successResponse(article));
     };
 
+    getBySlug = async (_req: Request, res: Response) => {
+        const article = await this.service.getBySlug(String(_req.params.slug))
+        if (!article) throw new AppError("Artículo no encontrado", 404);
+        res.json(successResponse(article));
+    };
+
     create = async (req: Request, res: Response) => {
         const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
         const imageFile = files?.image?.[0];

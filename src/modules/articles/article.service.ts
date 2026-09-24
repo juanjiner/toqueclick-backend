@@ -16,6 +16,10 @@ export class ArticleService {
         return this.repository.findById(id);
     }
 
+    getBySlug(slug: string): Promise<Article | null> {
+        return this.repository.findBySlug(slug);
+    }
+
     async getPresignedUploadUrl(filename: string, contentType: string, fileSize: number): Promise<{ uploadUrl: string; key: string }> {
         return await this.storage.getPresignedUrl(filename, contentType, fileSize, this.folder);
     }

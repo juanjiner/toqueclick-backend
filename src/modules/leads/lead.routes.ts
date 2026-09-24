@@ -7,5 +7,6 @@ const controller = new LeadController();
 
 router.post("/", controller.createLead);
 router.get("/", authenticate, controller.getAllLeads);
+router.patch("/:id/status", authenticate, controller.updateLeadStatus);
 
 export default router;

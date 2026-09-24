@@ -42,16 +42,30 @@ export class LeadController {
 
     getAllLeads = async (req: Request, res: Response) => {
         try {
-            const pageId = req.query.pageId as string;
+            const pageId = typeof req.query.pageId === 'string' ? req.query.pageId : undefined;
+            const status = typeof req.query.status === 'string' ? req.query.status : undefined;
             if (pageId) {
-                const results = await this.service.getLeadsByPage(pageId);
+                const results = await this.service.getLeadsByPage(pageId, status);
                 res.json(results);
             } else {
-                const results = await this.service.getAllLeads();
+                const results = await this.service.getAllLeads(status);
                 res.json(results);
             }
         } catch (error: any) {
             console.error("Error fetching leads:", error);
+            res.status(500).json({ error: error.message });
+        }
+    };
+
+    updateLeadStatus = async (req: Request, res: Response) => {
+        try {
+            const id = typeof req.params.id === 'string' ? req.params.id : String(req.params.id);
+            const { status } = req.body;
+            const statusStr = typeof status === 'string' ? status : String(status);
+            const result = await this.service.updateLeadStatus(id, statusStr);
+            res.json(result);
+        } catch (error: any) {
+            console.error("Error updating lead status:", error);
             res.status(500).json({ error: error.message });
         }
     };
